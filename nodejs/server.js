@@ -1,9 +1,10 @@
-const express = require("express");
-const cookieParser = require("cookie-parser");
-const path = require("path");
+import express from "express"; 
+import cookieParser from "cookie-parser"; 
+import path from "path"; 
 const app = express();
 const indexRouter = require("./routes/index");
-const PORT = 8080;
+const PORT = 8080; 
+const DB_URL="mongodb://localhost:27017";
 
 app.use(
   express.urlencoded({
