@@ -110,7 +110,7 @@ exports.signup = async (req, res) => {
 
   try {
     await saveUser(username, password);
-    return res.redirect('/');
+    return res.json("ok");
   } catch (error) {
     console.error(error);
     return res.status(500).json({ error: 'Error registering user' });

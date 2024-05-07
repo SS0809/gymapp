@@ -3,7 +3,9 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'dart:convert' show jsonEncode , json, base64, ascii;
 
-const SERVER_IP = 'https://tahr-eminent-exactly.ngrok-free.app';
+//const SERVER_IP = 'https://tahr-eminent-exactly.ngrok-free.app';
+const SERVER_IP = 'http://ec2-54-89-201-209.compute-1.amazonaws.com:8080';
+
 final storage = FlutterSecureStorage();
 
 void main() {
@@ -91,7 +93,7 @@ class HomePage extends StatelessWidget {
               future: http.read(Uri.parse('$SERVER_IP/data'), headers: {"Authorization": jwt}),
               builder: (context, snapshot) =>
               snapshot.hasData ?
-              Column(children: <Widget>[loges
+              Column(children: <Widget>[
                 Text("${payload['username']}, here's the data:"),
                 Text(snapshot.data ?? "")
               ],)
@@ -125,21 +127,19 @@ class LoginPage extends StatelessWidget {
     var res = await http.post(
       Uri.parse('$SERVER_IP/login'), // or '$SERVER_IP/signup' based on your endpoint
       headers: {'Content-Type': 'application/x-www-form-urlencoded'}, // Set the content type
-      body: 'username=d&password=d',
+        body: 'username='+username+'&password='+password,
     );
     if(res.statusCode == 200) return res.body;
     return "jwt";
   }
 
-  Future<int> attemptSignUp(String username, String password) async {
+  Future<String> attemptSignUp(String username, String password) async {
     var res = await http.post(
         Uri.parse('$SERVER_IP/signup'),
-        body: {
-          "username": username,
-          "password": password
-        }
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'}, // Set the content type
+        body: 'username='+username+'&password='+password,
     );
-    return res.statusCode;
+    return res.body;
 
   }
 
@@ -194,9 +194,10 @@ class LoginPage extends StatelessWidget {
                       displayDialog(context, "Invalid Password", "The password should be at least 4 characters long");
                     else{
                       var res = await attemptSignUp(username, password);
-                      if(res == 201)
+                      print(res);
+                      if(res == "\"ok\"")
                         displayDialog(context, "Success", "The user was created. Log in now.");
-                      else if(res == 409)
+                      else if(res == "409")
                         displayDialog(context, "That username is already registered", "Please try to sign up using another username or log in if you already have an account.");
                       else {
                         displayDialog(context, "Error", "An unknown error occurred.");
