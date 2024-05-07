@@ -1,9 +1,11 @@
 import jwt from "jsonwebtoken";
-require('dotenv').config();
-const { MongoClient } = require('mongodb');
-const { cookieJwtAuth } = require("../middleware/cookieJwtAuth");
+import { MongoClient } from 'mongodb';
+import { cookieJwtAuth } from "../middleware/cookieJwtAuth.js";
 
-async function getUser(username) {
+import { config as dotenvConfig } from 'dotenv';
+dotenvConfig();
+
+const getUser = async (username) => {
   const uri = process.env.DB_URI;
   let mongoClient;
 
@@ -12,7 +14,7 @@ async function getUser(username) {
     await mongoClient.connect();
     const db = mongoClient.db('JWT');
     const userModel = db.collection('JWT_collection');
-    const user = await userModel.findOne({ username: username });
+    const user = await userModel.findOne({ username });
 
     if (!user) {
       throw new Error('User not found');
@@ -29,19 +31,20 @@ async function getUser(username) {
   }
 }
 
-async function UpdateCount(username) {
+const updateCount = async (username) => {
   const uri = process.env.DB_URI;
   let mongoClient;
+
   try {
     mongoClient = new MongoClient(uri);
     await mongoClient.connect();
     const db = mongoClient.db('JWT');
     const userModel = db.collection('JWT_collection');
-    const user = await userModel.findOne({ username: username });
+    const user = await userModel.findOne({ username });
 
     if (user) {
       const updatedUser = await userModel.updateOne(
-        { username: username },
+        { username },
         { $inc: { count: 1 } }
       );
     } else {
@@ -49,7 +52,7 @@ async function UpdateCount(username) {
     }
   } catch (error) {
     console.error(error);
-    throw new Error('Error getting user');
+    throw new Error('Error updating count');
   } finally {
     if (mongoClient) {
       await mongoClient.close();
@@ -57,7 +60,7 @@ async function UpdateCount(username) {
   }
 }
 
-async function saveUser(username, password) {
+const saveUser = async (username, password) => {
   const uri = process.env.DB_URI;
   let mongoClient;
 
@@ -68,13 +71,13 @@ async function saveUser(username, password) {
     const db = mongoClient.db('JWT');
     const userModel = db.collection('JWT_collection');
 
-    const existingUser = await userModel.findOne({ username: username });
+    const existingUser = await userModel.findOne({ username });
 
     if (existingUser) {
       throw new Error('Username already exists');
     }
 
-    const user = await userModel.insertOne({ username: username, password: password, count: 0 });
+    const user = await userModel.insertOne({ username, password, count: 0 });
 
     return user;
   } catch (error) {
@@ -86,14 +89,13 @@ async function saveUser(username, password) {
     }
   }
 }
-exports.login  = async (req, res) => {
+
+export const login = async (req, res) => {
   const { username, password } = req.body;
   const user = await getUser(username);
-  console.log(user);
+
   if (user.password !== password) {
-    return res.status(403).json({
-      error: "invalid login",
-    });
+    return res.status(403).json({ error: "invalid login" });
   }
 
   delete user.password;
@@ -101,11 +103,10 @@ exports.login  = async (req, res) => {
   const token = jwt.sign(user, process.env.MY_SECRET, { expiresIn: "1h" });
 
   res.cookie("token", token);
-  console.log(token);
   res.json({ token });
 };
 
-exports.signup = async (req, res) => {
+export const signup = async (req, res) => {
   const { username, password } = req.body;
 
   try {
@@ -116,22 +117,20 @@ exports.signup = async (req, res) => {
     return res.status(500).json({ error: 'Error registering user' });
   }
 };
- 
 
-exports.add = async (req, res, next) => {
+export const add = async (req, res, next) => {
   try {
     const user = req.user;
-    await UpdateCount(user.username);
+    await updateCount(user.username);
     let count = await getUser(user.username);
-    res.redirect("/welcome?count="+ count.count);
+    res.redirect("/welcome?count=" + count.count);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Error processing request' });
   }
 };
 
-
-exports.data = async (req, res, next) => {
+export const data = async (req, res, next) => {
   try {
     const user = req.user;
     let count = await getUser(user.username);
@@ -142,9 +141,8 @@ exports.data = async (req, res, next) => {
   }
 };
 
-
-exports.logout  = async (req, res) => {
-  const token = req.cookies.token;//will be usedd to remove/invalid JWT
+export const logout = async (req, res) => {
+  const token = req.cookies.token;
   res.clearCookie('token');
   return res.redirect('/');
-};  
+};

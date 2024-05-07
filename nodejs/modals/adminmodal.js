@@ -1,5 +1,5 @@
 import mongoose from 'mongoose'; 
-import jwt from 'jsonwebtoken'; 
+//import jwt from 'jsonwebtoken'; 
 // User Basic Details Schema
 
 const User=mongoose.Schema({ 
@@ -24,7 +24,11 @@ const User=mongoose.Schema({
     user_address:{ 
         type:String, 
         require:true,
-    },
+    }, 
+    password:{ 
+        type:String, 
+        require:true,
+    }
 }); 
 const UserSchmea=mongoose.model('User',User);  
 export default UserSchmea; 

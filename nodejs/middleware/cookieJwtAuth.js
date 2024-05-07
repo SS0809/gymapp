@@ -1,6 +1,6 @@
-import  Jwt   from "jsonwebtoken";
+import jwt from "jsonwebtoken"; // Corrected import statement
 
-exports.cookieJwtAuth = (req, res, next) => {
+export const cookieJwtAuth = (req, res, next) => {
   const token = req.cookies.token;
   try {
     const user = jwt.verify(token, process.env.MY_SECRET);
@@ -12,13 +12,14 @@ exports.cookieJwtAuth = (req, res, next) => {
   }
 };
 
-exports.bearerJwtAuth = (req, res, next) => {
+export const bearerJwtAuth = (req, res, next) => {
   const authHeader = req.headers.authorization;
-  console.log(authHeader)
+  console.log(authHeader);
   try {
-    const user = jwt.verify(authHeader, process.env.MY_SECRET);
+    const token = authHeader.split(" ")[1]; // Extract token from Authorization header
+    const user = jwt.verify(token, process.env.MY_SECRET);
     req.user = user;
-    console.log("ru")
+    console.log("ru");
     next();
   } catch (err) {
     // Token verification failed

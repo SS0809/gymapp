@@ -8,8 +8,10 @@ try{
     console.log(`Server Connected to the Database`);
 } 
 catch(err){ 
-    console.log(`Internal Server Error`);
+    console.log(`Internal Server Eroor`);
+} 
 }
-}; 
 export default CONNECTION; 
+
+
 
