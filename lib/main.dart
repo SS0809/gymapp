@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'dart:convert' show json, base64, ascii;
+import 'dart:convert' show jsonEncode , json, base64, ascii;
 
-const SERVER_IP = 'http://ec2-54-89-201-209.compute-1.amazonaws.com';
+const SERVER_IP = 'https://tahr-eminent-exactly.ngrok-free.app';
 final storage = FlutterSecureStorage();
 
 void main() {
@@ -23,29 +23,34 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: FutureBuilder(
+      home :FutureBuilder(
           future: jwtOrEmpty,
           builder: (context, snapshot) {
-            if(!snapshot.hasData) return CircularProgressIndicator();
-            if(snapshot.data != "") {
+            if (!snapshot.hasData) {
+              return CircularProgressIndicator(); // If data is not available, show a loading indicator
+            }
+            if (snapshot.data != "") {
               var str = snapshot.data;
-              var jwt = str?.split(".");
+              Map<String, dynamic> data = json.decode(str ?? "");
+              var token = data['token'];
 
-              if(jwt?.length !=3) {
-                return LoginPage();
+              var jwt = str?.split(".");
+              if (jwt?.length != 3) {
+                return LoginPage(); // If the JWT token is invalid or empty, redirect to the LoginPage
               } else {
                 var payload = json.decode(ascii.decode(base64.decode(base64.normalize(jwt?[1] ?? ""))));
-                if(DateTime.fromMillisecondsSinceEpoch(payload["exp"]*1000).isAfter(DateTime.now())) {
-                  return HomePage(str ?? "", payload);
+                if (DateTime.fromMillisecondsSinceEpoch(payload["exp"] * 1000).isAfter(DateTime.now())) {
+                  return HomePage(token ?? "", payload); // If the token is valid and not expired, show the HomePage
                 } else {
-                  return LoginPage();
+                  return LoginPage(); // If the token is expired, redirect to the LoginPage
                 }
               }
             } else {
-              return LoginPage();
+              return LoginPage(); // If data is empty, redirect to the LoginPage
             }
           }
       ),
+
     );
   }
 }
@@ -86,7 +91,7 @@ class HomePage extends StatelessWidget {
               future: http.read(Uri.parse('$SERVER_IP/data'), headers: {"Authorization": jwt}),
               builder: (context, snapshot) =>
               snapshot.hasData ?
-              Column(children: <Widget>[
+              Column(children: <Widget>[loges
                 Text("${payload['username']}, here's the data:"),
                 Text(snapshot.data ?? "")
               ],)
@@ -118,11 +123,9 @@ class LoginPage extends StatelessWidget {
 
   Future<String> attemptLogIn(String username, String password) async {
     var res = await http.post(
-        Uri.parse('$SERVER_IP'),
-        body: {
-          "username": username,
-          "password": password
-        }
+      Uri.parse('$SERVER_IP/login'), // or '$SERVER_IP/signup' based on your endpoint
+      headers: {'Content-Type': 'application/x-www-form-urlencoded'}, // Set the content type
+      body: 'username=d&password=d',
     );
     if(res.statusCode == 200) return res.body;
     return "jwt";
