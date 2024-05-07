@@ -3,8 +3,8 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'dart:convert' show jsonEncode , json, base64, ascii;
 
-//const SERVER_IP = 'https://tahr-eminent-exactly.ngrok-free.app';
-const SERVER_IP = 'http://ec2-54-89-201-209.compute-1.amazonaws.com:8080';
+const SERVER_IP = 'https://tahr-eminent-exactly.ngrok-free.app';
+//const SERVER_IP = 'http://ec2-54-89-201-209.compute-1.amazonaws.com:8080';
 
 final storage = FlutterSecureStorage();
 
@@ -95,6 +95,16 @@ class HomePage extends StatelessWidget {
               snapshot.hasData ?
               Column(children: <Widget>[
                 Text("${payload['username']}, here's the data:"),
+                ElevatedButton(
+                  onPressed: () async {
+                    await storage.delete(key: "jwt");
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => LoginPage()),
+                    );
+                  },
+                  child: Text("LOGOUT"),
+                ),
                 Text(snapshot.data ?? "")
               ],)
                   :
