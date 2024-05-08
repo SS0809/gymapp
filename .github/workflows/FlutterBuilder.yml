@@ -16,16 +16,16 @@ jobs:
       - uses: actions/setup-java@v1
         with:
           java-version: '12.x'
-      - name: 'Set Flutter 3.19.0'
+      - name: 'Set Flutter 3.19.6'
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: 3.19.0
+          flutter-version: 3.19.6
       - name: 'Checkout Flutter'
         shell: bash
         run: |
            cd $FLUTTER_ROOT;
            git fetch --tags;
-           git checkout 3.19.0;
+           git checkout 3.19.6;
            flutter --version;
       - name: Create .env file
         run: |
