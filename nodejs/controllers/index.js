@@ -120,10 +120,11 @@ exports.signup = async (req, res) => {
 
 exports.add = async (req, res, next) => {
   try {
+    console.log(req)
     const user = req.user;
     await UpdateCount(user.username);
     let count = await getUser(user.username);
-    res.redirect("/welcome?count="+ count.count);
+    res.json({ count });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Error processing request' });
@@ -134,6 +135,7 @@ exports.add = async (req, res, next) => {
 exports.data = async (req, res, next) => {
   try {
     const user = req.user;
+    console.log(user)
     let count = await getUser(user.username);
     res.json({ count });
   } catch (error) {

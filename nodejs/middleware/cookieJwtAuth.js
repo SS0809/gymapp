@@ -18,7 +18,6 @@ exports.bearerJwtAuth = (req, res, next) => {
   try {
     const user = jwt.verify(authHeader, process.env.MY_SECRET);
     req.user = user;
-    console.log("ru")
     next();
   } catch (err) {
     // Token verification failed
