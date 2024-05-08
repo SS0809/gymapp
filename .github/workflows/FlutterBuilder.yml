@@ -33,7 +33,7 @@ jobs:
           SERVER=${{ secrets.SERVER }}
           EOF
       - name: 'Get dependencies'
-        run: flutter pub get
+        run: flutter pub get && flutter create .
       - name: 'Building Apk'
         run: flutter build apk --release
       - run: mkdir docs
