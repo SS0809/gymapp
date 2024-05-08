@@ -69,7 +69,7 @@ class HomePage extends StatelessWidget {
                     },
                     child: Text("Count++"),
                   ),
-                  Text(snapshot.data ?? ""),
+                  Text((snapshot.data) ?? ""),
                 ],
               );
             } else {
