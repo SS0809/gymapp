@@ -1,11 +1,12 @@
-const express = require('express');
-const router = express.Router(); // access the method of route
-const { bearerJwtAuth } = require("../middleware/cookieJwtAuth");
-const controllers = require('../controllers/index');
+import express from "express";
+const router = express.Router();
+import { bearerJwtAuth }  from '../middleware/cookieJwtAuth.js';
+import { login, signup, add, data, logout } from '../controllers/index.js';
 
-router.post('/login', controllers.login);
-router.post('/logout', controllers.logout);
-router.post('/add', bearerJwtAuth, controllers.add);
-router.get('/data', bearerJwtAuth, controllers.data);
-router.post('/signup',controllers.signup);
-module.exports = router;
+
+router.post('/login', login);
+router.post('/logout', logout);
+router.post('/add', bearerJwtAuth, add);
+router.get('/data', bearerJwtAuth, data);
+router.post('/signup', signup);
+export default router;

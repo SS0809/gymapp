@@ -1,10 +1,17 @@
-const express = require("express");
-const cookieParser = require("cookie-parser");
-const path = require("path");
-const app = express();
-const indexRouter = require("./routes/index");
-const PORT = 8080;
-
+import express from "express"; 
+import cookieParser from "cookie-parser"; 
+import path from "path"; 
+import cors from "cors";
+const app = express(); 
+import indexRouter from './routes/index.js';
+import Connection from './connection/connection.js';
+import admindata from './controllers/admin.js';
+const PORT = 8080; 
+import { config as dotenvConfig } from 'dotenv';
+dotenvConfig();
+const DB_URL = process.env.DB_URI;
+app.use(cors());
+Connection(DB_URL);
 app.use(
   express.urlencoded({
     extended: true,
@@ -12,13 +19,6 @@ app.use(
 );
 app.use(cookieParser());
 
-app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "../public/index.html"));
-});
-
-app.get("/welcome", (req, res) => {
-  res.sendFile(path.join(__dirname, "../public/welcome.html"));
-});
 
 app.use("/", indexRouter);
 
