@@ -35,16 +35,13 @@ class MyApp extends StatelessWidget {
             }
             if (snapshot.data != "") {
               var str = snapshot.data;
-              Map<String, dynamic> data = json.decode(str ?? "");
-              var token = data['token'];
-
               var jwt = str?.split(".");
               if (jwt?.length != 3) {
                 return LoginPage(); // If the JWT token is invalid or empty, redirect to the LoginPage
               } else {
                 var payload = json.decode(ascii.decode(base64.decode(base64.normalize(jwt?[1] ?? ""))));
                 if (DateTime.fromMillisecondsSinceEpoch(payload["exp"] * 1000).isAfter(DateTime.now())) {
-                  return HomePage(token ?? "", payload); // If the token is valid and not expired, show the HomePage
+                  return HomePage(str ?? "", payload); // If the token is valid and not expired, show the HomePage
                 } else {
                   return LoginPage(); // If the token is expired, redirect to the LoginPage
                 }

@@ -100,9 +100,7 @@ const saveUser = async (username, password) => {
   delete user.password;
 
   const token = jwt.sign(user, process.env.MY_SECRET, { expiresIn: "1h" });
-
-  res.cookie("token", token);
-  res.json({ token });
+  res.json({ token: token });
 };
 
  const signup = async (req, res) => {

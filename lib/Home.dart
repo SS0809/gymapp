@@ -62,7 +62,7 @@ class HomePage extends StatelessWidget {
                       var res = await http.post(
                         Uri.parse('$SERVER_IP/add'),
                         headers: {
-                          'Authorization': jwt,
+                          'Authorization': json.decode(jwt)["token"],
                           'Content-Type': 'application/json',
                         },
                       );
@@ -85,7 +85,7 @@ class HomePage extends StatelessWidget {
     var res = await http.get(
       Uri.parse('$SERVER_IP/data'),
       headers: {
-        'Authorization': jwt,
+        'Authorization': json.decode(jwt)["token"],
         'Content-Type': 'application/json',
       },
     );
