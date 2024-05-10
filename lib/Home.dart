@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'dart:convert';
 
 import 'main.dart';
@@ -24,7 +23,6 @@ class HomePage extends StatelessWidget {
             base64.decode(base64.normalize(jwtParts[1]))
         )
     );
-
     return HomePage(jwt, payload);
   }
 
