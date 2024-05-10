@@ -23,7 +23,6 @@ class HomePage extends StatelessWidget {
             base64.decode(base64.normalize(jwtParts[1]))
         )
     );
-
     return HomePage(jwt, payload);
   }
 
