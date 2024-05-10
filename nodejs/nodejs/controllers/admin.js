@@ -1,14 +1,30 @@
-import express from "express"; 
-import admindata from '../modals/adminmodal.js';
-const router=express.Router(); 
-router.get('/admin',async(req,res)=>{ 
-    try{ 
-        const admindata=await admindata.find(req.query); 
-        return res.status(201).json({msg:`Data Fetched Sucessfully`});
+import express from 'express'; 
+import AdminSchmea from '../modals/adminmodal.js';
+const admin=express.Router(); 
+admin.get('/',async(req,res)=>{ 
+    try{
+        const admin=AdminSchmea.find(req.query);
+        return res.status(201).json(`Data Fetched Sucsessfully`);
     } 
     catch(err){ 
-        return res.status(301).json({msg:`Internal Server Error`});
+        console.log(`Internal Server Error`); 
+        return res.status(201).json({msg:'Admin Not Found'})
     }
-}); 
+});
+    admin.get('/:id',async(req,res)=>{  
+        try{
+        const ID=req.body.Id;  
+        if(ID==user_id){ 
+            return res.status(201).json({msg:"Data Sucsessfully Fetched"})
+        } 
+        else{ 
+            return res.status(401).json({msg:'Member with this id Not FOund'})
+        }
+    } 
+    catch(err){ 
+        return res.status(err)
+    }
 
-export default router;
+    }); 
+    
+    export default admin;
