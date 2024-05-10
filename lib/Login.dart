@@ -4,8 +4,14 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'dart:convert' show jsonEncode , json, base64, ascii;
 import 'main.dart';
 import 'Home.dart';
+class LoginPage extends StatefulWidget {
+  @override
+  _LoginPageState createState() => _LoginPageState();
+}
 
-class LoginPage extends StatelessWidget {
+class _LoginPageState extends State<LoginPage> {
+  String _selectedUserRole = 'ADMIN'; // Default selected value
+
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
@@ -22,7 +28,7 @@ class LoginPage extends StatelessWidget {
     var res = await http.post(
       Uri.parse('$SERVER_IP/login'), // or '$SERVER_IP/signup' based on your endpoint
       headers: {'Content-Type': 'application/x-www-form-urlencoded'}, // Set the content type
-      body: 'username='+username+'&password='+password,
+      body: 'username='+username+'&password='+password+'&type='+_selectedUserRole,
     );
     if(res.statusCode == 200) return res.body;
     return "jwt";
@@ -32,7 +38,7 @@ class LoginPage extends StatelessWidget {
     var res = await http.post(
       Uri.parse('$SERVER_IP/signup'),
       headers: {'Content-Type': 'application/x-www-form-urlencoded'}, // Set the content type
-      body: 'username='+username+'&password='+password,
+      body: 'username='+username+'&password='+password+'&type='+_selectedUserRole,
     );
     return res.body;
 
@@ -41,47 +47,59 @@ class LoginPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(title: Text("Log In"),),
-        body: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            children: <Widget>[
-              TextField(
-                controller: _usernameController,
-                decoration: InputDecoration(
-                    labelText: 'Username'
-                ),
-              ),
-              TextField(
-                controller: _passwordController,
-                obscureText: true,
-                decoration: InputDecoration(
-                    labelText: 'Password'
-                ),
-              ),
-              ElevatedButton(
-                  onPressed: () async {
-                    var username = _usernameController.text;
-                    var password = _passwordController.text;
-                    var jwt = await attemptLogIn(username, password);
-                    if(jwt != null) {
-                      storage.write(key: "jwt", value: jwt ?? "");
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => HomePage.fromBase64(jwt)
-                          )
-                      );
-                    } else {
-                      displayDialog(context, "An Error Occurred", "No account was found matching that username and password");
-                    }
-                  },
-                  child: Text("Log In")
-              ),
-              ElevatedButton(
-                  onPressed: () async {
-                    var username = _usernameController.text;
-                    var password = _passwordController.text;
+      appBar: AppBar(
+        title: Text("Log In"),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          children: <Widget>[
+            TextField(
+              controller: _usernameController,
+              decoration: InputDecoration(labelText: 'Username'),
+            ),
+            TextField(
+              controller: _passwordController,
+              obscureText: true,
+              decoration: InputDecoration(labelText: 'Password'),
+            ),
+            DropdownButton<String>(
+              value: _selectedUserRole,
+              items: <String>['USER' , 'ADMIN' ].map((String value) {
+                return DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(value),
+                );
+              }).toList(),
+              onChanged: (String? newValue) { // Accepts nullable string
+                setState(() {
+                  _selectedUserRole = newValue ?? ""; // Update selected value
+                });
+              },
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                var username = _usernameController.text;
+                var password = _passwordController.text;
+                var jwt = await attemptLogIn(username, password);
+                if(jwt != null) {
+                  storage.write(key: "jwt", value: jwt ?? "");
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => HomePage.fromBase64(jwt)
+                      )
+                  );
+                } else {
+                  displayDialog(context, "An Error Occurred", "No account was found matching that username and password");
+                }
+              },
+              child: Text("Log In"),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                var username = _usernameController.text;
+                var password = _passwordController.text;
 
                     if(username.length < 4)
                       displayDialog(context, "Invalid Username", "The username should be at least 4 characters long");
