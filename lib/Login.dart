@@ -89,7 +89,6 @@ class LoginPage extends StatelessWidget {
                       displayDialog(context, "Invalid Password", "The password should be at least 4 characters long");
                     else{
                       var res = await attemptSignUp(username, password);
-                      print(res);
                       if(res == "\"ok\"")
                         displayDialog(context, "Success", "The user was created. Log in now.");
                       else if(res == "409")
