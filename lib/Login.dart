@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'dart:convert' show jsonEncode, json, base64, ascii;
+import 'dart:convert' show jsonEncode , json, base64, ascii;
 import 'main.dart';
 import 'Home.dart';
 class LoginPage extends StatefulWidget {
@@ -18,10 +18,10 @@ class _LoginPageState extends State<LoginPage> {
   late double screenWidth, screenHeight;
 
   void displayDialog(context, title, text) => showDialog(
-        context: context,
-        builder: (context) =>
-            AlertDialog(title: Text(title), content: Text(text)),
-      );
+    context: context,
+    builder: (context) =>
+        AlertDialog(title: Text(title), content: Text(text)),
+  );
 
   Future<String> attemptLogIn(String username, String password) async {
     var res = await http.post(
@@ -29,7 +29,7 @@ class _LoginPageState extends State<LoginPage> {
       headers: {'Content-Type': 'application/x-www-form-urlencoded'}, // Set the content type
       body: 'username='+username+'&password='+password+'&type='+_selectedUserRole,
     );
-    if (res.statusCode == 200) return res.body;
+    if(res.statusCode == 200) return res.body;
     return "jwt";
   }
 
@@ -40,82 +40,88 @@ class _LoginPageState extends State<LoginPage> {
       body: 'username='+username+'&password='+password+'&type='+_selectedUserRole,
     );
     return res.body;
-  }
 
+  }
   @override
   Widget build(BuildContext context) {
     screenWidth = MediaQuery.of(context).size.width;
     screenHeight = MediaQuery.of(context).size.height;
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Log In"),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(
-          children: <Widget>[
-            TextField(
-              controller: _usernameController,
-              decoration: InputDecoration(labelText: 'Username'),
-            ),
-            TextField(
-              controller: _passwordController,
-              obscureText: true,
-              decoration: InputDecoration(labelText: 'Password'),
-            ),
-            DropdownButton<String>(
-              value: _selectedUserRole,
-              items: <String>['USER' , 'ADMIN' ].map((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(value),
-                );
-              }).toList(),
-              onChanged: (String? newValue) { // Accepts nullable string
-                setState(() {
-                  _selectedUserRole = newValue ?? ""; // Update selected value
-                });
-              },
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                var username = _usernameController.text;
-                var password = _passwordController.text;
-                var jwt = await attemptLogIn(username, password);
-                if(jwt != null) {
-                  storage.write(key: "jwt", value: jwt ?? "");
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => HomePage.fromBase64(jwt)
-                      )
+        appBar: AppBar(
+          leading: Icon(Icons.arrow_back_ios_new),
+          title: Text("BLean LogIn"),
+          centerTitle: true,
+        ),
+        body: Padding(
+          padding: EdgeInsets.symmetric(
+            horizontal: 0.08 * screenWidth,
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: <Widget>[
+              DropdownButton<String>(
+                value: _selectedUserRole,
+                style: const TextStyle(color: Colors.black) , padding: EdgeInsets.symmetric(horizontal: 75) ,
+                dropdownColor: Colors.orange[200],
+                isExpanded: true,
+                items: <String>['USER', 'ADMIN'].map((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value),
                   );
-                } else {
-                  displayDialog(context, "An Error Occurred", "No account was found matching that username and password");
-                }
-              },
-              child: Text("Log In"),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                var username = _usernameController.text;
-                var password = _passwordController.text;
+                }).toList(),
+                onChanged: (String? newValue) {
+                  setState(() {
+                    _selectedUserRole = newValue ?? "";
+                  });
+                },
+              ),
+              SizedBox(
+                height: 0.05 * screenHeight,
+              ),
+              TextField(
+                controller: _usernameController,
+                decoration: InputDecoration(
+                  labelText: 'Username',
+                  icon: Icon(Icons.perm_identity_sharp),
+                  iconColor: Colors.orange[600],
+                ),
+              ),
+              TextField(
+                controller: _passwordController,
+                obscureText: true,
+                decoration: InputDecoration(
+                  labelText: 'Password',
+                  icon: Icon(Icons.lock_open_sharp),
+                  iconColor: Colors.orange[600],
+                ),
+              ),
+              SizedBox(
+                height: 0.06 * screenHeight,
+              ),
+              ElevatedButton(
+                onPressed: () async {
+                  var username = _usernameController.text;
+                  var password = _passwordController.text;
+                  var jwt = await attemptLogIn(username, password);
 
+                  displayDialog(context, "Login Button", jwt);
 
-                  // if (jwt != null) {
-                  //   storage.write(key: "jwt", value: jwt ?? "");
-                  //   Navigator.push(
-                  //       context,
-                  //       MaterialPageRoute(
-                  //           builder: (context) => HomePage.fromBase64(jwt)));
-                  // } else {
-                  //   displayDialog(context, "An Error Occurred",
-                  //       "No account was found matching that username and password");
-                  // }
+                  if (jwt != null) {
+                    storage.write(key: "jwt", value: jwt ?? "");
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => HomePage.fromBase64(jwt)));
+                  } else {
+                    displayDialog(context, "An Error Occurred",
+                        "No account was found matching that username and password");
+                  }
                 },
                 style: ButtonStyle(
                     backgroundColor: MaterialStateProperty.all(
-                      Color(0xFFF05D22),
+                      Colors.orange[600],
                     ),
                     minimumSize: MaterialStateProperty.all(
                         Size(screenWidth * 0.75, screenHeight * 0.05))),
@@ -133,45 +139,32 @@ class _LoginPageState extends State<LoginPage> {
                 children: [
                   const Text("Don't have an account?"),
                   TextButton(
-                    onPressed: () {
+                      onPressed: () async {
+                          var username = _usernameController.text;
+                          var password = _passwordController.text;
 
-                    },
-                    child: const Text("Register"),
+                          if(username.length < 4)
+                            displayDialog(context, "Invalid Username", "The username should be at least 4 characters long");
+                          else if(password.length < 4)
+                            displayDialog(context, "Invalid Password", "The password should be at least 4 characters long");
+                          else{
+                            var res = await attemptSignUp(username, password);
+                            if(res == "\"ok\"")
+                              displayDialog(context, "Success", "The user was created. Log in now.");
+                            else if(res == "409")
+                              displayDialog(context, "That username is already registered", "Please try to sign up using another username or log in if you already have an account.");
+                            else {
+                              displayDialog(context, "Error", "An unknown error occurred.");
+                            }
+                          }
+                        },
+                        child: Text("Sign Up")
                   ),
                 ],
               ),
               SizedBox(
                 height: 0.1 * screenHeight,
               ),
-              // ElevatedButton(
-              //   onPressed: () async {
-              //     var username = _usernameController.text;
-              //     var password = _passwordController.text;
-              //
-              //     if (username.length < 4)
-              //       displayDialog(context, "Invalid Username",
-              //           "The username should be at least 4 characters long");
-              //     else if (password.length < 4)
-              //       displayDialog(context, "Invalid Password",
-              //           "The password should be at least 4 characters long");
-              //     else {
-              //       var res = await attemptSignUp(username, password);
-              //       if (res == "\"ok\"")
-              //         displayDialog(context, "Success",
-              //             "The user was created. Log in now.");
-              //       else if (res == "409")
-              //         displayDialog(
-              //             context,
-              //             "That username is already registered",
-              //             "Please try to sign up using another username or log in if you already have an account.");
-              //       else {
-              //         displayDialog(
-              //             context, "Error", "An unknown error occurred.");
-              //       }
-              //     }
-              //   },
-              //   child: Text("Sign Up"),
-              // ),
             ],
           ),
         ));
