@@ -4,8 +4,14 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'dart:convert' show jsonEncode, json, base64, ascii;
 import 'main.dart';
 import 'Home.dart';
+class LoginPage extends StatefulWidget {
+  @override
+  _LoginPageState createState() => _LoginPageState();
+}
 
-class LoginPage extends StatelessWidget {
+class _LoginPageState extends State<LoginPage> {
+  String _selectedUserRole = 'ADMIN'; // Default selected value
+
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
@@ -19,11 +25,9 @@ class LoginPage extends StatelessWidget {
 
   Future<String> attemptLogIn(String username, String password) async {
     var res = await http.post(
-      Uri.parse('$SERVER_IP/login'),
-      // or '$SERVER_IP/signup' based on your endpoint
-      headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-      // Set the content type
-      body: 'username=' + username + '&password=' + password,
+      Uri.parse('$SERVER_IP/login'), // or '$SERVER_IP/signup' based on your endpoint
+      headers: {'Content-Type': 'application/x-www-form-urlencoded'}, // Set the content type
+      body: 'username='+username+'&password='+password+'&type='+_selectedUserRole,
     );
     if (res.statusCode == 200) return res.body;
     return "jwt";
@@ -32,9 +36,8 @@ class LoginPage extends StatelessWidget {
   Future<String> attemptSignUp(String username, String password) async {
     var res = await http.post(
       Uri.parse('$SERVER_IP/signup'),
-      headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-      // Set the content type
-      body: 'username=' + username + '&password=' + password,
+      headers: {'Content-Type': 'application/x-www-form-urlencoded'}, // Set the content type
+      body: 'username='+username+'&password='+password+'&type='+_selectedUserRole,
     );
     return res.body;
   }
@@ -44,46 +47,60 @@ class LoginPage extends StatelessWidget {
     screenWidth = MediaQuery.of(context).size.width;
     screenHeight = MediaQuery.of(context).size.height;
     return Scaffold(
-        appBar: AppBar(
-          leading: Icon(Icons.arrow_back_ios_new),
-          title: Text("Log In"),
-          centerTitle: true,
-        ),
-        body: Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: 0.08 * screenWidth,
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: <Widget>[
-              TextField(
-                controller: _usernameController,
-                decoration: InputDecoration(
-                  labelText: 'Username',
-                  icon: Icon(Icons.perm_identity_sharp),
-                  iconColor: Colors.lightBlue,
-                ),
-              ),
-              TextField(
-                controller: _passwordController,
-                obscureText: true,
-                decoration: InputDecoration(
-                  labelText: 'Password',
-                  icon: Icon(Icons.lock_open_sharp),
-                  iconColor: Colors.lightBlue,
-                ),
-              ),
-              SizedBox(
-                height: 0.06 * screenHeight,
-              ),
-              ElevatedButton(
-                onPressed: () async {
-                  var username = _usernameController.text;
-                  var password = _passwordController.text;
-                  var jwt = await attemptLogIn(username, password);
+      appBar: AppBar(
+        title: Text("Log In"),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          children: <Widget>[
+            TextField(
+              controller: _usernameController,
+              decoration: InputDecoration(labelText: 'Username'),
+            ),
+            TextField(
+              controller: _passwordController,
+              obscureText: true,
+              decoration: InputDecoration(labelText: 'Password'),
+            ),
+            DropdownButton<String>(
+              value: _selectedUserRole,
+              items: <String>['USER' , 'ADMIN' ].map((String value) {
+                return DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(value),
+                );
+              }).toList(),
+              onChanged: (String? newValue) { // Accepts nullable string
+                setState(() {
+                  _selectedUserRole = newValue ?? ""; // Update selected value
+                });
+              },
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                var username = _usernameController.text;
+                var password = _passwordController.text;
+                var jwt = await attemptLogIn(username, password);
+                if(jwt != null) {
+                  storage.write(key: "jwt", value: jwt ?? "");
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => HomePage.fromBase64(jwt)
+                      )
+                  );
+                } else {
+                  displayDialog(context, "An Error Occurred", "No account was found matching that username and password");
+                }
+              },
+              child: Text("Log In"),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                var username = _usernameController.text;
+                var password = _passwordController.text;
 
-                  displayDialog(context, "Login Button", jwt);
 
                   // if (jwt != null) {
                   //   storage.write(key: "jwt", value: jwt ?? "");

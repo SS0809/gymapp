@@ -3,10 +3,17 @@ const router = express.Router();
 import { bearerJwtAuth }  from '../middleware/cookieJwtAuth.js';
 import { login, signup, add, data, logout } from '../controllers/index.js';
 
-
+//<-----------------------------------ADMIN-------------------------------------->
 router.post('/login', login);
 router.post('/logout', logout);
 router.post('/add', bearerJwtAuth, add);
-router.get('/data', bearerJwtAuth, data);
-router.post('/signup', signup);
+router.get('/data', bearerJwtAuth, data);//homepage data
+router.post('/signup', signup);// adds new user
+//router.post('CRUD PLANS { NAME , PRICE... }')
+//router.post('CRUD USERS { CANCELL , ACTIVATE }')
+//router.post('CRUD USER SPECIFIC CONTENT')
+//<-----------------------------------CLIENT------------------------------------->
+router.post('/login', login);
+router.post('/logout', logout);
+router.get('/data', bearerJwtAuth, data);//homepage data
 export default router;
