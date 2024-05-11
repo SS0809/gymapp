@@ -1,114 +1,94 @@
 import express from "express";
- import mongoose  from "mongoose";
- import Membership from "../modals/membership.js";
- const membership=express.Router(); 
- //Retrive the membership
- membership.get('/memership',async(req,res)=>{ 
-    try{ 
-        const memberhsip_data=await Membership.find(req.query); 
-        return res.status(301).json(membership_data); 
-    } 
-    catch(err){
-        console.log('Internal Error');
-        return res.status(404).json({msg:'Internal Server Error in the System'})
+import Membership from "../modals/membership.js";
+
+const router = express.Router();
+
+// Retrieve all memberships
+router.get('/memberships', async (req, res) => {
+    try {
+        const memberships = await Membership.find(req.query);
+        return res.status(200).json(memberships);
+    } catch (err) {
+        console.error('Internal Error:', err);
+        return res.status(500).json({ msg: 'Internal Server Error' });
     }
- })  
- // Retrive the membership with the Id name; 
- membership.get('/memeberhship/:id',async(req,res)=>{ 
-    let  membership_id=req.body;  
-    try{
-    const isexist=await Membership.findByOne(plan_id=membership_id);  
-    if(!isexist){
-        return res.status(301).json({msg:'This Plan Does Not Exist,try again'}) 
+});
 
-    } 
-    else{ 
-        return res.status(201).json(membership_id)
-    } 
-
-
-}
-    catch(err){ 
-        return res.status(404).json({msg:'Internal Server Error in the System'})
-    }
-
-
-
- })  
- // Create a new Membership type(VIP,PREMIMUM,NORMAL); 
- membership.post('/new member',async(req,res)=>{  
-    const plan_type=req.body; 
-    const plan_price=req.body; 
-    const plan_validity=req.body; 
-    const plan_id=req.body; 
-    if(!plane_type||!plan_price||!plan_validity||!plan_id){
-        res.status(301).json({msg:'Please Enter the all data Carefully'});
-    }
-    try{ 
-        const plan_id=await membership.findOne(membership); 
-        if(plan_id){  
-            return res.status({msg:'This Plan Already Exist'});
-
-        } 
-        else{ 
-            const newmember=new Membership({
-                plan_type,
-                plan_price,
-                plan_validity,
-                plan_id,
-            }) 
-            await newmember.save(); 
-            res.status(401).json({msg:'New Member Created Sucsesfully'}); 
-
-
+// Retrieve a membership by ID
+router.get('/memberships/:id', async (req, res) => {
+    const membershipId = req.params.id;
+    try {
+        const membership = await Membership.findById(membershipId);
+        if (!membership) {
+            return res.status(404).json({ msg: 'Membership not found' });
         }
-
-    } 
-    catch(err){ 
-        return res.status(404).json({msg:'Internal Server Error in the Backend'}); 
+        return res.status(200).json(membership);
+    } catch (err) {
+        console.error('Internal Error:', err);
+        return res.status(500).json({ msg: 'Internal Server Error' });
     }
- })   
- // Update the Membership Plan 
- membership.put('/update',async(req,res)=>{
-    const plan_type=req.body; 
-    const plan_id=req.body; 
-    const plan_price=req.body; 
-    const plan_validity=req.body; 
-    if(!plan_type||!plan_id||!plan_price||!plan_validity){
-        return res.status(401).json({msg:'Kindly Enter All the Details Carefully'})
-    } 
-    try{
-        const existplan=await Membership.findOne({plan_id:plan_id}); 
-        if(existplan){
-            existplan.plan_id=new plan_id; 
-            existplan.plan_type=new plan_type; 
-            existplan.plan_price=new plan_price; 
-            existplan.plan_validity=new plan_validity; 
-            await existplan.save(); 
-            return res.status(201).json({msg:'Plan Updated Sucsessfully'})
-        } 
-        else{
-            return res.status(401).json({msg:'Form cant be updated'});
+});
+
+// Create a new membership
+router.post('/memberships', async (req, res) => {
+    const { plan_type, plan_price, plan_validity } = req.body;
+    if (!plan_type || !plan_price || !plan_validity) {
+        return res.status(400).json({ msg: 'Please provide all required fields' });
+    }
+    try {
+        const existingMembership = await Membership.findOne({ plan_type });
+        if (existingMembership) {
+            return res.status(400).json({ msg: 'Membership already exists' });
         }
-    
-    } 
-    catch(err){ 
-        return res.status(404).json({msg:'Internl Server Error in the System'})
+        const newMembership = new Membership({
+            plan_type,
+            plan_price,
+            plan_validity
+        });
+        await newMembership.save();
+        return res.status(201).json(newMembership);
+    } catch (err) {
+        console.error('Internal Error:', err);
+        return res.status(500).json({ msg: 'Internal Server Error' });
     }
- })  
- // Delete a Membershi by validation of the Id;  
- membership.delete('/delete/:id',async(req,res)=>{ 
-    const id=req.params.body;
-    console.log(id); 
-    await Membership.findByOneandRemove(id).exec(); 
-    return res.status(201).json({msg:'Memeber Sucsessfully Deleted from the Database'})
- });   
- export default membership; 
- 
+});
 
+// Update a membership
+router.put('/memberships/:id', async (req, res) => {
+    const membershipId = req.params.id;
+    const { plan_type, plan_price, plan_validity } = req.body;
+    if (!plan_type || !plan_price || !plan_validity) {
+        return res.status(400).json({ msg: 'Please provide all required fields' });
+    }
+    try {
+        const membership = await Membership.findById(membershipId);
+        if (!membership) {
+            return res.status(404).json({ msg: 'Membership not found' });
+        }
+        membership.plan_type = plan_type;
+        membership.plan_price = plan_price;
+        membership.plan_validity = plan_validity;
+        await membership.save();
+        return res.status(200).json(membership);
+    } catch (err) {
+        console.error('Internal Error:', err);
+        return res.status(500).json({ msg: 'Internal Server Error' });
+    }
+});
 
+// Delete a membership
+router.delete('/memberships/:id', async (req, res) => {
+    const membershipId = req.params.id;
+    try {
+        const membership = await Membership.findByIdAndDelete(membershipId);
+        if (!membership) {
+            return res.status(404).json({ msg: 'Membership not found' });
+        }
+        return res.status(200).json({ msg: 'Membership successfully deleted' });
+    } catch (err) {
+        console.error('Internal Error:', err);
+        return res.status(500).json({ msg: 'Internal Server Error' });
+    }
+});
 
-
- // To be continue .
-
-
+export default router;

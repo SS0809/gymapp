@@ -20,7 +20,7 @@ const cookieJwtAuth = (req, res, next) => {
     next();
   } catch (err) {
     // Token verification failed
-    return res.status(403).json({ error: 'Forbidden' });
+    return res.status(403).json({ error: 'JWT BEARER TOKEN NOT FOUND' });
   }
 };
 

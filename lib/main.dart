@@ -6,7 +6,7 @@ import 'package:gymapp/Login.dart';
 import 'package:gymapp/Home.dart';
 
 //const SERVER_IP = 'https://tahr-eminent-exactly.ngrok-free.app';
-const SERVER_IP = 'http://ec2-54-89-201-209.compute-1.amazonaws.com:82/';
+const SERVER_IP = 'http://ec2-54-89-201-209.compute-1.amazonaws.com:82';
 
 final storage = FlutterSecureStorage();
 

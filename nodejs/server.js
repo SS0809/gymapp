@@ -14,7 +14,7 @@ import { config as dotenvConfig } from 'dotenv';
 dotenvConfig();
 const DB_URL = process.env.DB_URI;
 app.use(cors());
-//Connection(DB_URL);
+Connection(DB_URL+'BLEAN');
 app.use(
   express.urlencoded({
     extended: true,
