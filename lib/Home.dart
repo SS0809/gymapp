@@ -34,12 +34,12 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  List<Plan> plans = [
+ /* List<Plan> plans = [
     Plan(name: 'Plan 1', age: '20'),
     Plan(name: 'Plan 2', age: '25'),
     Plan(name: 'Plan 3', age: '30'),
   ];
-
+*/
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -58,6 +58,15 @@ class _HomePageState extends State<HomePage> {
                   Text("${widget.payload['username']}, here's the data:"),
                   ElevatedButton(
                     onPressed: () async {
+                      var response = await fetchplans();
+                      print(json.decode(response));
+                      List<Plan> plans = json.decode(response).map<Plan>((planData) {
+                        return Plan(
+                          type: planData['plan_type'],
+                          price: planData['plan_price'],
+                          validity: planData['plan_validity'],
+                        );
+                      }).toList();
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
@@ -119,5 +128,18 @@ class _HomePageState extends State<HomePage> {
     );
     return res.body;
   }
+
+  Future<String> fetchplans() async {
+    var res = await http.get(
+      Uri.parse('$SERVER_IP/getplans'),
+      headers: {
+        'Authorization': json.decode(widget.jwt)["token"],
+        'Content-Type': 'application/json',
+      },
+    );
+    return res.body;
+  }
+
+
 }
 

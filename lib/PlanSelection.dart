@@ -90,7 +90,7 @@ class _PlanSelectionPageState extends State<PlanSelectionPage> {
                       width: double.infinity,
                       child: Center(
                         child: Text(
-                          widget.plans[index].name,
+                          widget.plans[index].type,
                           style: TextStyle(
                             fontSize: 30,
                             fontWeight: FontWeight.bold,

@@ -22,11 +22,13 @@ import 'package:flutter/material.dart';
 import 'package:gymapp/PlanSelection.dart';
 
 class Plan {
-  String name;
-  String age;
+  String type;
+  int price;
+  int validity;
 
-  Plan({required this.name, required this.age});
+  Plan({required this.type, required this.price, required this.validity});
 }
+
 
 class EditPlansPage extends StatefulWidget {
   final List<Plan> plans;
@@ -103,7 +105,7 @@ class _EditPlansPageState extends State<EditPlansPage> {
 
   void _addElementToList() {
     setState(() {
-      widget.plans.add(Plan(name: 'New Plan', age: '25'));
+      widget.plans.add(Plan(type:"Beta",price:8000,validity:30),);
     });
   }
 }
@@ -126,15 +128,18 @@ class PlanItem extends StatefulWidget {
 }
 
 class _PlanItemState extends State<PlanItem> {
-  late TextEditingController _nameController;
-  late TextEditingController _ageController;
+  late TextEditingController _typeController;
+  late TextEditingController _priceController;
+  late TextEditingController _validityController;
   bool _isEditing = false;
 
   @override
   void initState() {
     super.initState();
-    _nameController = TextEditingController(text: widget.plan.name);
-    _ageController = TextEditingController(text: widget.plan.age);
+    _typeController = TextEditingController(text: widget.plan.type);
+    _priceController = TextEditingController(text: widget.plan.price.toString());
+    _validityController = TextEditingController(text: widget.plan.validity.toString());
+
   }
 
   @override
@@ -143,15 +148,21 @@ class _PlanItemState extends State<PlanItem> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         TextField(
-          controller: _nameController,
+          controller: _typeController,
           enabled: _isEditing,
           decoration: InputDecoration(labelText: 'Name'),
         ),
         SizedBox(height: 20.0),
         TextField(
-          controller: _ageController,
+          controller: _priceController,
           enabled: _isEditing,
           decoration: InputDecoration(labelText: 'Age'),
+        ),
+        SizedBox(height: 20.0),
+        TextField(
+          controller: _validityController,
+          enabled: _isEditing,
+          decoration: InputDecoration(labelText: 'Validity'),
         ),
         SizedBox(height: 20.0),
         Row(
@@ -163,8 +174,9 @@ class _PlanItemState extends State<PlanItem> {
                   if (_isEditing) {
                     widget.onUpdate(
                       Plan(
-                        name: _nameController.text,
-                        age: _ageController.text,
+                        type: _typeController.text,
+                        price: int.parse(_priceController.text),
+                        validity: int.parse(_validityController.text),
                       ),
                     );
                   }
@@ -176,7 +188,7 @@ class _PlanItemState extends State<PlanItem> {
             SizedBox(width: 90.0),
             ElevatedButton(
               onPressed: _isEditing ? null : () {
-                _removePlanAndUpdateList(widget.plan.name);
+                _removePlanAndUpdateList(widget.plan.type);
                   onUpdatePlans: (updatedPlans) {
                     setState(() {
                       widget.onUpdatePlans(updatedPlans);
@@ -195,7 +207,7 @@ class _PlanItemState extends State<PlanItem> {
 
   void _removePlanAndUpdateList(String name) {
     setState(() {
-      int indexToRemove = widget.plans.indexWhere((plan) => plan.name == name);
+      int indexToRemove = widget.plans.indexWhere((plan) => plan.type == name);
       if (indexToRemove != -1) {
         widget.plans.removeAt(indexToRemove);
         // Call onUpdate after removing the plan
@@ -210,8 +222,8 @@ class _PlanItemState extends State<PlanItem> {
 
   @override
   void dispose() {
-    _nameController.dispose();
-    _ageController.dispose();
+    _typeController.dispose();
+    _priceController.dispose();
     super.dispose();
   }
 }
