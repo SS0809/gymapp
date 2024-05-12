@@ -18,6 +18,8 @@ class MyApp extends StatelessWidget {
   }
 }
 */
+import 'package:flutter/material.dart';
+import 'package:gymapp/PlanSelection.dart';
 
 class Plan {
   String name;
@@ -27,8 +29,9 @@ class Plan {
 }
 
 class EditPlansPage extends StatefulWidget {
-  late List<Plan> plans;
+  final List<Plan> plans;
   final Function(List<Plan>) onUpdatePlans;
+
   EditPlansPage({
     required this.plans,
     required this.onUpdatePlans,
@@ -45,43 +48,68 @@ class _EditPlansPageState extends State<EditPlansPage> {
       appBar: AppBar(
         title: Text('Edit Plans'),
         actions: [
-          IconButton(
+          /*IconButton(
             onPressed: () {
               Navigator.pop(context);
             },
             icon: Icon(Icons.arrow_back),
+          ),*/
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) =>   PlanSelectionPage(plans: widget.plans,
+                  onUpdatePlans: (updatedPlans) {
+                    setState(() {
+                      updatedPlans = widget.plans;
+                    });
+                    print(widget.plans);
+                  },),
+                ),);
+            },
+            child: Text("Save"),
           ),
         ],
       ),
       body: Padding(
         padding: EdgeInsets.all(20.0),
         child: ListView.builder(
-          itemCount: widget.plans.length,
+          itemCount: widget.plans.length + 1, // Add one for the add button
           itemBuilder: (BuildContext context, int index) {
-            return PlanItem(
-              plans: widget.plans,
-              plan: widget.plans[index],
-              onUpdate: (updatedPlan) {
-                setState(() {
-                  widget.plans[index] = updatedPlan;
-                });
-              },
-              onUpdatePlans: (updatedPlans) {
-                setState(() {
-                  widget.plans = updatedPlans;
-                });
-              },
-            );
+            if (index == widget.plans.length) {
+              return ElevatedButton(
+                onPressed: () {
+                  _addElementToList();
+                },
+                child: Text("Add Plan"),
+              );
+            } else {
+              return PlanItem(
+                plans: widget.plans,
+                plan: widget.plans[index],
+                onUpdate: (updatedPlan) {
+                  setState(() {
+                    widget.plans[index] = updatedPlan;
+                  });
+                },
+                onUpdatePlans: widget.onUpdatePlans,
+              );
+            }
           },
         ),
       ),
     );
   }
+
+  void _addElementToList() {
+    setState(() {
+      widget.plans.add(Plan(name: 'New Plan', age: '25'));
+    });
+  }
 }
 
-
 class PlanItem extends StatefulWidget {
-  late List<Plan> plans; // Declare plans here
+  final List<Plan> plans;
   final Plan plan;
   final Function(Plan) onUpdate;
   final Function(List<Plan>) onUpdatePlans;
@@ -126,21 +154,6 @@ class _PlanItemState extends State<PlanItem> {
           decoration: InputDecoration(labelText: 'Age'),
         ),
         SizedBox(height: 20.0),
-        ElevatedButton(
-          onPressed: () async {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) =>   PlanSelectionPage(plans: widget.plans,
-                onUpdatePlans: (updatedPlans) {
-                  setState(() {
-                    updatedPlans = widget.plans;
-                  });
-                  print(widget.plans);
-                },),
-            ),);
-          },
-          child: Text("Save"),
-        ),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
@@ -162,11 +175,12 @@ class _PlanItemState extends State<PlanItem> {
             ),
             SizedBox(width: 90.0),
             ElevatedButton(
-              onPressed: _isEditing ? null : () {
+              onPressed: _isEditing
+                  ? null
+                  : () {
                 _removePlanAndUpdateList(widget.plan.name);
                 setState(() {
                   widget.onUpdatePlans(widget.plans);
-                  print(widget.plans);
                 });
               },
               child: Text('Delete'),
@@ -180,19 +194,9 @@ class _PlanItemState extends State<PlanItem> {
 
   void _removePlanAndUpdateList(String name) {
     setState(() {
-      int indexToRemove = widget.plans.indexWhere((plan) => plan.name == name);
-      if (indexToRemove != -1) {
-        widget.plans.removeAt(indexToRemove);
-        // Call onUpdate after removing the plan
-        widget.onUpdatePlans(widget.plans);
-      }
-      print(widget.plans);
-            print(widget.plan);
-
+      widget.plans.removeWhere((plan) => plan.name == name);
     });
   }
-
-
 
   @override
   void dispose() {
@@ -201,6 +205,7 @@ class _PlanItemState extends State<PlanItem> {
     super.dispose();
   }
 }
+
 
 
 //TODO add a top bar navigation to go back to PLanselection.dart
