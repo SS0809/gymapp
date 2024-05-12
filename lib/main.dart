@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gymapp/PlanSelection.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'dart:convert' show jsonEncode , json, base64, ascii;
@@ -47,7 +48,7 @@ class MyApp extends StatelessWidget {
                 }
               }
             } else {
-              return LoginPage(); // If data is empty, redirect to the LoginPage
+              return PlanSelectionPage(); // If data is empty, redirect to the LoginPage
             }
           }
       ),
