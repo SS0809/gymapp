@@ -5,6 +5,10 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'dart:convert' show jsonEncode , json, base64, ascii;
 import 'package:gymapp/Login.dart';
 import 'package:gymapp/Home.dart';
+import 'package:gymapp/plans_edit.dart';
+import 'package:gymapp/PlanSelection.dart';
+
+
 
 //const SERVER_IP = 'https://tahr-eminent-exactly.ngrok-free.app';
 const SERVER_IP = 'http://ec2-54-89-201-209.compute-1.amazonaws.com:82';
@@ -20,7 +24,11 @@ class MyApp extends StatelessWidget {
     if(jwt == null) return "";
     return jwt;
   }
-
+  List<Plan> _plans = [
+    Plan(name: 'Plan 1', age: '20'),
+    Plan(name: 'Plan 2', age: '25'),
+    Plan(name: 'Plan 3', age: '30'),
+  ]; // If data is empty, redirect to the LoginPage
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -49,7 +57,10 @@ class MyApp extends StatelessWidget {
                 }
               }
             } else {
-              return PlanSelectionPage(); // If data is empty, redirect to the LoginPage
+              // test for editplanspage
+              // return EditPlansPage(plans: _plans);
+               return LoginPage();
+              // return PlanSelectionPage();
             }
           }
       ),
@@ -57,8 +68,3 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-
-
-
-
-
