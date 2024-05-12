@@ -22,7 +22,7 @@ class _PlanSelectionPageState extends State<PlanSelectionPage> {
       backgroundColor: Colors.white,
        appBar: AppBar(
         title: Text('Featured Plans'),
-         backgroundColor: Colors.white60,
+         backgroundColor: Color(0xFF05AADC)
     ),
       body: Center(
         child: Padding(
@@ -34,33 +34,69 @@ class _PlanSelectionPageState extends State<PlanSelectionPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            Center(
+              child: Text(
+                'Select a Plan',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                ),
+              ),
+            ),
           Container(
-            color: Color(0xFF05AADC),
+            decoration: BoxDecoration(
+              color: Color(0xFF05AADC),
+              borderRadius: BorderRadius.circular(20.0),
+            ),
             height: 100,
             width: double.infinity,
             child: Center(
-                child: Text('999'),
+                child: Text(
+                    '999',
+                  style: TextStyle(
+                    fontSize: 30,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
             ),
           ),
               SizedBox( height: deviceHeight*0.04),
               Container(
-                color: Color(0XFF05AADC),
+                decoration: BoxDecoration(
+                  color: Color(0xFF05AADC),
+                  borderRadius: BorderRadius.circular(20.0),
+                ),
                 height: 100,
                 width: double.infinity,
                 child: Center(
                   child: Text(
-                      '1999'
+                      '1999',
+                    style: TextStyle(
+                      fontSize: 30,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
               ),
               SizedBox( height: deviceHeight*0.04),
               Container(
-                color: const Color(0XFF05AADC),
+                decoration: BoxDecoration(
+                  color: Color(0xFF05AADC),
+                  borderRadius: BorderRadius.circular(20.0),
+                ),
                 height: 100,
                 width: double.infinity,
                 child: Center(
                   child: Text(
-                      '2999'
+                      '2999',
+                    style: TextStyle(
+                      fontSize: 30,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
               ),
