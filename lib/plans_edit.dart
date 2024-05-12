@@ -175,14 +175,15 @@ class _PlanItemState extends State<PlanItem> {
             ),
             SizedBox(width: 90.0),
             ElevatedButton(
-              onPressed: () {
-                onUpdatePlan: (updatedPlan) {
-                  setState(() {
-                    updatedPlan = widget.plan.name;
-                  });
+              onPressed: _isEditing ? null : () {
+                _removePlanAndUpdateList(widget.plan.name);
+                  onUpdatePlans: (updatedPlans) {
+                    setState(() {
+                      widget.onUpdatePlans(updatedPlans);
+                    });
+                  };
                   print(widget.plans);
-                };
-             },
+              },
               child: Text('Delete'),
             )
           ],
@@ -194,9 +195,18 @@ class _PlanItemState extends State<PlanItem> {
 
   void _removePlanAndUpdateList(String name) {
     setState(() {
-      widget.plans.removeWhere((plan) => plan.name == name);
+      int indexToRemove = widget.plans.indexWhere((plan) => plan.name == name);
+      if (indexToRemove != -1) {
+        widget.plans.removeAt(indexToRemove);
+        // Call onUpdate after removing the plan
+        widget.onUpdate(widget.plan);
+      }
     });
   }
+
+
+
+
 
   @override
   void dispose() {
