@@ -5,6 +5,9 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'dart:convert' show jsonEncode , json, base64, ascii;
 import 'package:gymapp/Login.dart';
 import 'package:gymapp/Home.dart';
+import 'package:gymapp/plans_edit.dart';
+
+
 
 //const SERVER_IP = 'https://tahr-eminent-exactly.ngrok-free.app';
 const SERVER_IP = 'http://ec2-54-89-201-209.compute-1.amazonaws.com:82';
@@ -49,7 +52,7 @@ class MyApp extends StatelessWidget {
                 }
               }
             } else {
-              return PlanSelectionPage(); // If data is empty, redirect to the LoginPage
+              return LoginPage(); // If data is empty, redirect to the LoginPage
             }
           }
       ),
@@ -57,8 +60,3 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-
-
-
-
-
