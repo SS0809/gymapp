@@ -1,11 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:gymapp/PlanSelection.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-
+import 'package:gymapp/plans_edit.dart';
 import 'main.dart';
 import 'Login.dart';
 
-class HomePage extends StatelessWidget {
+
+
+class HomePage extends StatefulWidget {
+  final String jwt;
+  final Map<String, dynamic> payload;
+
   HomePage(this.jwt, this.payload);
 
   factory HomePage.fromBase64(String jwt) {
@@ -18,16 +24,21 @@ class HomePage extends StatelessWidget {
       throw ArgumentError('Invalid JWT string format');
     }
 
-    var payload = json.decode(
-        ascii.decode(
-            base64.decode(base64.normalize(jwtParts[1]))
-        )
-    );
+    var payload =
+    json.decode(ascii.decode(base64.decode(base64.normalize(jwtParts[1]))));
     return HomePage(jwt, payload);
   }
 
-  final String jwt;
-  final Map<String, dynamic> payload;
+  @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  List<Plan> plans = [
+    Plan(name: 'Plan 1', age: '20'),
+    Plan(name: 'Plan 2', age: '25'),
+    Plan(name: 'Plan 3', age: '30'),
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +55,25 @@ class HomePage extends StatelessWidget {
             } else if (snapshot.hasData) {
               return Column(
                 children: <Widget>[
-                  Text("${payload['username']}, here's the data:"),
+                  Text("${widget.payload['username']}, here's the data:"),
+                  ElevatedButton(
+                    onPressed: () async {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => PlanSelectionPage(
+                            plans: plans,
+                            onUpdatePlans: (updatedPlans) {
+                              setState(() {
+                                plans = updatedPlans;
+                              });
+                            },
+                          ),
+                        ),
+                      );
+                    },
+                    child: Text("Plans"),
+                  ),
                   ElevatedButton(
                     onPressed: () async {
                       await storage.delete(key: "jwt");
@@ -60,10 +89,11 @@ class HomePage extends StatelessWidget {
                       var res = await http.post(
                         Uri.parse('$SERVER_IP/add'),
                         headers: {
-                          'Authorization': json.decode(jwt)["token"],
+                          'Authorization': json.decode(widget.jwt)["token"],
                           'Content-Type': 'application/json',
                         },
                       );
+                      // Handle response
                     },
                     child: Text("Count++"),
                   ),
@@ -83,10 +113,11 @@ class HomePage extends StatelessWidget {
     var res = await http.get(
       Uri.parse('$SERVER_IP/data'),
       headers: {
-        'Authorization': json.decode(jwt)["token"],
+        'Authorization': json.decode(widget.jwt)["token"],
         'Content-Type': 'application/json',
       },
     );
     return res.body;
   }
 }
+

@@ -6,6 +6,7 @@ import 'dart:convert' show jsonEncode , json, base64, ascii;
 import 'package:gymapp/Login.dart';
 import 'package:gymapp/Home.dart';
 import 'package:gymapp/plans_edit.dart';
+import 'package:gymapp/PlanSelection.dart';
 
 
 
@@ -58,7 +59,8 @@ class MyApp extends StatelessWidget {
             } else {
               // test for editplanspage
               // return EditPlansPage(plans: _plans);
-              return LoginPage();
+               return LoginPage();
+              // return PlanSelectionPage();
             }
           }
       ),
