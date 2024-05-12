@@ -175,14 +175,14 @@ class _PlanItemState extends State<PlanItem> {
             ),
             SizedBox(width: 90.0),
             ElevatedButton(
-              onPressed: _isEditing
-                  ? null
-                  : () {
-                _removePlanAndUpdateList(widget.plan.name);
-                setState(() {
-                  widget.onUpdatePlans(widget.plans);
-                });
-              },
+              onPressed: () {
+                onUpdatePlan: (updatedPlan) {
+                  setState(() {
+                    updatedPlan = widget.plan.name;
+                  });
+                  print(widget.plans);
+                };
+             },
               child: Text('Delete'),
             )
           ],
