@@ -27,20 +27,24 @@ class Plan {
 }
 
 class EditPlansPage extends StatefulWidget {
+  late List<Plan> plans; // Declare _plans
+
+  EditPlansPage({
+    required this.plans,
+  });
   @override
   _EditPlansPageState createState() => _EditPlansPageState();
 }
 class _EditPlansPageState extends State<EditPlansPage> {
-  late List<Plan> _plans; // Declare _plans here
+  List<Plan> _plans = [
+    Plan(name: 'Plan 1', age: '20'),
+    Plan(name: 'Plan 2', age: '25'),
+    Plan(name: 'Plan 3', age: '30'),
+  ];
 
   @override
   void initState() {
     super.initState();
-    _plans = [
-      Plan(name: 'Plan 1', age: '20'),
-      Plan(name: 'Plan 2', age: '25'),
-      Plan(name: 'Plan 3', age: '30'),
-    ];
   }
 
   @override
@@ -62,6 +66,11 @@ class _EditPlansPageState extends State<EditPlansPage> {
                   _plans[index] = updatedPlan;
                 });
               },
+              onUpdatePlans: (updatedPlans) {
+                setState(() {
+                  _plans = updatedPlans;
+                });
+              },
             );
           },
         ),
@@ -74,11 +83,13 @@ class PlanItem extends StatefulWidget {
   late List<Plan> plans; // Declare _plans here
   final Plan plan;
   final Function(Plan) onUpdate;
+  final Function(List<Plan>) onUpdatePlans;
 
   PlanItem({
     required this.plans,
     required this.plan,
     required this.onUpdate,
+    required this.onUpdatePlans,
   });
 
   @override
@@ -149,16 +160,18 @@ class _PlanItemState extends State<PlanItem> {
 
   void _removePlanAndUpdateList(String name) {
     setState(() {
-      print(widget.plans);
-      // Find the index of the plan with the specified name
-      print(name);
       int indexToRemove = widget.plans.indexWhere((plan) => plan.name == name);
-      if (indexToRemove != -1) { // If the plan is found
-        widget.plans.removeAt(indexToRemove); // Remove the plan at the found index
+      if (indexToRemove != -1) {
+        widget.plans.removeAt(indexToRemove);
+        // Call onUpdate after removing the plan
+        widget.onUpdatePlans(widget.plans);
       }
       print(widget.plans);
+      print(widget.plan);
+
     });
   }
+
 
 
   @override

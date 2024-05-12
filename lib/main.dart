@@ -23,7 +23,11 @@ class MyApp extends StatelessWidget {
     if(jwt == null) return "";
     return jwt;
   }
-
+  List<Plan> _plans = [
+    Plan(name: 'Plan 1', age: '20'),
+    Plan(name: 'Plan 2', age: '25'),
+    Plan(name: 'Plan 3', age: '30'),
+  ]; // If data is empty, redirect to the LoginPage
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -52,7 +56,9 @@ class MyApp extends StatelessWidget {
                 }
               }
             } else {
-              return LoginPage(); // If data is empty, redirect to the LoginPage
+              // test for editplanspage
+              // return EditPlansPage(plans: _plans);
+              return LoginPage();
             }
           }
       ),
