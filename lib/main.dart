@@ -6,8 +6,8 @@ import 'dart:convert' show jsonEncode , json, base64, ascii;
 import 'package:gymapp/Login.dart';
 import 'package:gymapp/Home.dart';
 
-const SERVER_IP = 'https://tahr-eminent-exactly.ngrok-free.app';
-//const SERVER_IP = 'http://ec2-54-89-201-209.compute-1.amazonaws.com:8080';
+//const SERVER_IP = 'https://tahr-eminent-exactly.ngrok-free.app';
+const SERVER_IP = 'http://ec2-54-89-201-209.compute-1.amazonaws.com:82';
 
 final storage = FlutterSecureStorage();
 
@@ -36,6 +36,7 @@ class MyApp extends StatelessWidget {
             }
             if (snapshot.data != "") {
               var str = snapshot.data;
+              print(str);
               var jwt = str?.split(".");
               if (jwt?.length != 3) {
                 return LoginPage(); // If the JWT token is invalid or empty, redirect to the LoginPage
