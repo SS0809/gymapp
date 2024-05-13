@@ -26,12 +26,26 @@ class _PlanSelectionPageState extends State<PlanSelectionPage> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-          title: Text('Featured Plans'), backgroundColor: Color(0xFF05AADC)),
+          title: Text('Featured Plans'),
+          backgroundColor: Color(0xFF05AADC),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+            builder: (context) => MyApp(),
+        ),
+            );
+          },
+        ),
+      ),
       body: Center(
         child: Padding(
-          padding: EdgeInsets.symmetric(
-            vertical: deviceHeight * 0.06,
-            horizontal: deviceWidth * 0.08,
+          padding: EdgeInsets.only(
+            bottom: deviceHeight * 0.4,
+            left: deviceWidth * 0.08,
+            right: deviceWidth * 0.08,
           ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -47,61 +61,91 @@ class _PlanSelectionPageState extends State<PlanSelectionPage> {
                   ),
                 ),
               ),
-              ElevatedButton(
-                onPressed: () async {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => MyApp(),
-                    ),
-                  );
-                },
-                child: Text("Go back"),
+              SizedBox(
+                height: deviceHeight*0.03,
               ),
+
+              ListView.builder(
+                shrinkWrap: true,
+                itemCount: widget.plans.length,
+                itemBuilder: (BuildContext context, int index) {
+                  return Column(
+                    children: [
+                      Container(
+                        height: 80,
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          color: Color(0xFF05AADC),
+                          borderRadius: BorderRadius.circular(31.0),
+                        ),
+
+                        child: Center(
+                          child: Text(
+                            widget.plans[index].type,
+                            style: TextStyle(
+                              fontSize: 30,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        height: deviceHeight*0.02,
+                      )
+                    ],
+                  );
+
+                },
+              ),
+
+              // SizedBox(
+              //   height: deviceHeight*0.03,
+              // ),
+
               ElevatedButton(
                 onPressed: () async {
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
                         builder: (context) => EditPlansPage(
-                              plans: widget.plans,
-                              onUpdatePlans: (updatedPlans) {
-                                setState(() {
-                                  widget.onUpdatePlans(updatedPlans);
-                                });
-                              },
-                            )),
+                          plans: widget.plans,
+                          onUpdatePlans: (updatedPlans) {
+                            setState(() {
+                              widget.onUpdatePlans(updatedPlans);
+                            });
+                          },
+                        )),
                   );
                 },
+                style: ElevatedButton.styleFrom(
+                  foregroundColor: Colors.white,
+                  backgroundColor: Colors.orange[600],
+                  textStyle: TextStyle(
+                    fontSize: 19,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  padding: EdgeInsets.symmetric(vertical: 17, horizontal: 10), // Button padding
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20.0), // Button border radius
+                  ),
+                ),
                 child: Text("Edit"),
               ),
-              ListView.builder(
-                shrinkWrap: true,
-                itemCount: widget.plans.length,
-                itemBuilder: (BuildContext context, int index) {
-                  return SizedBox(
-                    height: deviceHeight * 0.04,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Color(0xFF05AADC),
-                        borderRadius: BorderRadius.circular(20.0),
-                      ),
-                      height: 100,
-                      width: double.infinity,
-                      child: Center(
-                        child: Text(
-                          widget.plans[index].type,
-                          style: TextStyle(
-                            fontSize: 30,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ),
-                  );
-                },
+              SizedBox(
+                height: deviceHeight*0.009,
               ),
+              // ElevatedButton(
+              //   onPressed: () async {
+              //     Navigator.pushReplacement(
+              //       context,
+              //       MaterialPageRoute(
+              //         builder: (context) => MyApp(),
+              //       ),
+              //     );
+              //   },
+              //   child: Text("Go back"),
+              // ),
             ],
           ),
         ),
