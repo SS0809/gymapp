@@ -1,5 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:gymapp/PlanSelection.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:gymapp/plans_edit.dart';
+import 'main.dart';
+import 'Login.dart';
+
+
+
 /*
 void main() {
   runApp(MyApp());
@@ -18,15 +27,14 @@ class MyApp extends StatelessWidget {
   }
 }
 */
-import 'package:flutter/material.dart';
-import 'package:gymapp/PlanSelection.dart';
 
 class Plan {
+  String id;
   String type;
   int price;
   int validity;
 
-  Plan({required this.type, required this.price, required this.validity});
+  Plan({required this.id, required this.type, required this.price, required this.validity});
 }
 
 
@@ -105,7 +113,7 @@ class _EditPlansPageState extends State<EditPlansPage> {
 
   void _addElementToList() {
     setState(() {
-      widget.plans.add(Plan(type:"Beta",price:8000,validity:30),);
+      widget.plans.add(Plan(id:"1000",type:"Beta",price:8000,validity:30),);
     });
   }
 }
@@ -174,6 +182,7 @@ class _PlanItemState extends State<PlanItem> {
                   if (_isEditing) {
                     widget.onUpdate(
                       Plan(
+                        id: widget.plan.id,
                         type: _typeController.text,
                         price: int.parse(_priceController.text),
                         validity: int.parse(_validityController.text),
@@ -189,6 +198,7 @@ class _PlanItemState extends State<PlanItem> {
             ElevatedButton(
               onPressed: _isEditing ? null : () {
                 _removePlanAndUpdateList(widget.plan.type);
+                 deleteplan(widget.plan.id);
                   onUpdatePlans: (updatedPlans) {
                     setState(() {
                       widget.onUpdatePlans(updatedPlans);
@@ -215,7 +225,28 @@ class _PlanItemState extends State<PlanItem> {
       }
     });
   }
+  Future<String> get jwtOrEmpty async {
+    var jwt = await storage.read(key: "jwt");
+    if(jwt == null) return "";
+    return jwt;
+  }
 
+    Future<String> deleteplan(String idd) async {
+            print(idd);
+      print(await jwtOrEmpty);
+    var res = await http.post(
+      Uri.parse('$SERVER_IP/deleteplan'),
+      headers: {
+        'Authorization': json.decode(await jwtOrEmpty)["token"],
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: {
+        'id': idd,
+      },
+    );
+    print(res.body);
+    return res.body;
+  }
 
 
 

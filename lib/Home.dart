@@ -57,32 +57,34 @@ class _HomePageState extends State<HomePage> {
                 children: <Widget>[
                   Text("${widget.payload['username']}, here's the data:"),
                   ElevatedButton(
-                    onPressed: () async {
-                      var response = await fetchplans();
-                      print(json.decode(response));
-                      List<Plan> plans = json.decode(response).map<Plan>((planData) {
-                        return Plan(
-                          type: planData['plan_type'],
-                          price: planData['plan_price'],
-                          validity: planData['plan_validity'],
-                        );
-                      }).toList();
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => PlanSelectionPage(
-                            plans: plans,
-                            onUpdatePlans: (updatedPlans) {
-                              setState(() {
-                                plans = updatedPlans;
-                              });
-                            },
-                          ),
-                        ),
-                      );
-                    },
-                    child: Text("Plans"),
-                  ),
+  onPressed: () async {
+    var response = await fetchplans();
+    print(json.decode(response));
+    List<Plan> plans = (json.decode(response) as List<dynamic>).map<Plan>((planData) {
+      return Plan(
+        id: planData['_id'],
+        type: planData['plan_type'],
+        price: planData['plan_price'],
+        validity: planData['plan_validity'],
+      );
+    }).toList();
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PlanSelectionPage(
+          plans: plans,
+          onUpdatePlans: (updatedPlans) {
+            setState(() {
+              plans = updatedPlans;
+            });
+          },
+        ),
+      ),
+    );
+  },
+  child: Text("Plans"),
+),
+
                   ElevatedButton(
                     onPressed: () async {
                       await storage.delete(key: "jwt");
@@ -136,6 +138,19 @@ class _HomePageState extends State<HomePage> {
         'Authorization': json.decode(widget.jwt)["token"],
         'Content-Type': 'application/json',
       },
+    );
+    return res.body;
+  }
+  Future<String> deleteplan(int idd) async {
+    var res = await http.post(
+      Uri.parse('$SERVER_IP/deleteplan'),
+      headers: {
+        'Authorization': json.decode(widget.jwt)["token"],
+        'Content-Type': 'application/json',
+      },
+      body: {json.encode({
+        'id': idd,
+      })},
     );
     return res.body;
   }

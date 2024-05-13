@@ -24,11 +24,13 @@ class MyApp extends StatelessWidget {
     if(jwt == null) return "";
     return jwt;
   }
+  /*
   List<Plan> _plans = [
     Plan(type:"Beta",price:8000,validity:30),
     Plan(type:"Beta",price:8000,validity:30),
     Plan(type:"Beta",price:8000,validity:30),
   ]; // If data is empty, redirect to the LoginPage
+   */
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
