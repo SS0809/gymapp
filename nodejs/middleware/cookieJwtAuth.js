@@ -29,7 +29,7 @@ const bearerJwtAuthmustAdmin = (req, res, next) => {
   try {
    const user = jwt.verify(authHeader, process.env.MY_SECRET);
     req.user = user;
-    if(req.type == 'ADMIN')
+    if(user.type == 'ADMIN')
     next();
     else
     return res.status(403).json({ error: 'ADMIN token not found' });
