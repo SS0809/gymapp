@@ -53,18 +53,16 @@ class EditPlansPage extends StatefulWidget {
 }
 
 class _EditPlansPageState extends State<EditPlansPage> {
+  TextEditingController _validityController = TextEditingController();
+  TextEditingController _nameController = TextEditingController();
+  TextEditingController _ageController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('Edit Plans'),
         actions: [
-          /*IconButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            icon: Icon(Icons.arrow_back),
-          ),*/
           ElevatedButton(
             onPressed: () async {
               Navigator.pushReplacement(
@@ -82,7 +80,7 @@ class _EditPlansPageState extends State<EditPlansPage> {
                 ),
               );
             },
-            child: Text("BAck"),
+            child: Text("Back"),
           ),
         ],
       ),
@@ -94,7 +92,7 @@ class _EditPlansPageState extends State<EditPlansPage> {
             if (index == widget.plans.length) {
               return ElevatedButton(
                 onPressed: () {
-                  _addElementToList("new",2,2);
+                  _showAddPlanDialog(context);
                 },
                 child: Text("Add Plan"),
               );
@@ -116,12 +114,55 @@ class _EditPlansPageState extends State<EditPlansPage> {
     );
   }
 
+  void _showAddPlanDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Add Plan'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: _nameController,
+                decoration: InputDecoration(labelText: 'Name'),
+              ),
+              TextField(
+                controller: _ageController,
+                decoration: InputDecoration(labelText: 'Age'),
+              ),
+              TextField(
+                controller: _validityController,
+                decoration: InputDecoration(labelText: 'Validity'),
+                keyboardType: TextInputType.number,
+              ),
+            ],
+          ),
+          actions: [
+            ElevatedButton(
+              onPressed: () {
+                _addElementToList(
+                  _nameController.text,
+                  int.tryParse(_ageController.text)!,
+                  int.tryParse(_validityController.text)!,
+                );
+                Navigator.of(context).pop();
+              },
+              child: Text('Add'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   Future<String> get jwtOrEmpty async {
     var jwt = await storage.read(key: "jwt");
     if (jwt == null) return "";
     return jwt;
   }
- /* Future<String> createplan(int billable_amount , String month , String plan , String userid) async {
+
+  /* Future<String> createplan(int billable_amount , String month , String plan , String userid) async {
     print(await jwtOrEmpty);
     var res = await http.post(
       Uri.parse('$SERVER_IP/createplan'),
@@ -139,7 +180,8 @@ class _EditPlansPageState extends State<EditPlansPage> {
     print(res.body);
     return res.body;
   }*/
-  Future<String> createplan(String plan_type , int plan_price ,int plan_validity) async {
+  Future<String> createplan(
+      String plan_type, int plan_price, int plan_validity) async {
     print(await jwtOrEmpty);
     var res = await http.post(
       Uri.parse('$SERVER_IP/createplan'),
@@ -148,18 +190,20 @@ class _EditPlansPageState extends State<EditPlansPage> {
         'Content-Type': 'application/x-www-form-urlencoded',
       },
       body: {
-        'plan_type':plan_type,
-        'plan_price':plan_price.toString(),
-        'plan_validity':plan_validity.toString()
+        'plan_type': plan_type,
+        'plan_price': plan_price.toString(),
+        'plan_validity': plan_validity.toString()
       },
     );
     print(res.body);
     print(res.statusCode);
     return res.statusCode.toString();
   }
-  void _addElementToList(String a1 ,int a2,int a3) async {
-     var res = await createplan(a1 ,  a2 ,  a3);
-     if(res=="200"){//new created
+
+  void _addElementToList(String a1, int a2, int a3) async {
+    var res = await createplan(a1, a2, a3);
+    if (res == "200") {
+      //new created
       setState(() {
         widget.plans.add(
           Plan(id: "1000", type: a1, price: a2, validity: a3),
@@ -169,21 +213,22 @@ class _EditPlansPageState extends State<EditPlansPage> {
       scaffold.showSnackBar(
         SnackBar(
           content: const Text('New Plan Created'),
-          action: SnackBarAction(label: 'UNDO', onPressed: scaffold.hideCurrentSnackBar),
+          action: SnackBarAction(
+              label: 'UNDO', onPressed: scaffold.hideCurrentSnackBar),
         ),
       );
-    }else if(res=="201"){
-       //plan already exits
-       final scaffold = ScaffoldMessenger.of(context);
-       scaffold.showSnackBar(
-         SnackBar(
-           content: const Text('New Plan already exits'),
-           /*action: SnackBarAction(label: 'UNDO', onPressed: scaffold.hideCurrentSnackBar),*/
-         ),
-       );
-     }
+    } else if (res == "201") {
+      //plan already exits
+      final scaffold = ScaffoldMessenger.of(context);
+      scaffold.showSnackBar(
+        SnackBar(
+          content: const Text('New Plan already exits'),
+          /*action: SnackBarAction(label: 'UNDO', onPressed: scaffold.hideCurrentSnackBar),*/
+        ),
+      );
+    }
   }
-  }
+}
 
 class PlanItem extends StatefulWidget {
   final List<Plan> plans;
@@ -319,7 +364,6 @@ class _PlanItemState extends State<PlanItem> {
     print(res.body);
     return res.body;
   }
-
 
   @override
   void dispose() {
