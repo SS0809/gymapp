@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:gymapp/PlanSelection.dart';
+import 'package:gymapp/plans/PlanSelection.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:gymapp/plans_edit.dart';
-import 'main.dart';
-import 'Login.dart';
-
-
+import 'package:gymapp/plans/plans_edit.dart';
+import '../main.dart';
+import '../Login.dart';
 
 /*
 void main() {
@@ -34,9 +32,12 @@ class Plan {
   int price;
   int validity;
 
-  Plan({required this.id, required this.type, required this.price, required this.validity});
+  Plan(
+      {required this.id,
+      required this.type,
+      required this.price,
+      required this.validity});
 }
-
 
 class EditPlansPage extends StatefulWidget {
   final List<Plan> plans;
@@ -68,16 +69,20 @@ class _EditPlansPageState extends State<EditPlansPage> {
             onPressed: () async {
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (context) =>   PlanSelectionPage(plans: widget.plans,
-                  onUpdatePlans: (updatedPlans) {
-                    setState(() {
-                      updatedPlans = widget.plans;
-                    });
-                    print(widget.plans);
-                  },),
-                ),);
+                MaterialPageRoute(
+                  builder: (context) => PlanSelectionPage(
+                    plans: widget.plans,
+                    onUpdatePlans: (updatedPlans) {
+                      setState(() {
+                        updatedPlans = widget.plans;
+                      });
+                      print(widget.plans);
+                    },
+                  ),
+                ),
+              );
             },
-            child: Text("Save"),
+            child: Text("BAck"),
           ),
         ],
       ),
@@ -89,7 +94,7 @@ class _EditPlansPageState extends State<EditPlansPage> {
             if (index == widget.plans.length) {
               return ElevatedButton(
                 onPressed: () {
-                  _addElementToList();
+                  _addElementToList("new",2,2);
                 },
                 child: Text("Add Plan"),
               );
@@ -111,12 +116,74 @@ class _EditPlansPageState extends State<EditPlansPage> {
     );
   }
 
-  void _addElementToList() {
-    setState(() {
-      widget.plans.add(Plan(id:"1000",type:"Beta",price:8000,validity:30),);
-    });
+  Future<String> get jwtOrEmpty async {
+    var jwt = await storage.read(key: "jwt");
+    if (jwt == null) return "";
+    return jwt;
   }
-}
+ /* Future<String> createplan(int billable_amount , String month , String plan , String userid) async {
+    print(await jwtOrEmpty);
+    var res = await http.post(
+      Uri.parse('$SERVER_IP/createplan'),
+      headers: {
+        'Authorization': json.decode(await jwtOrEmpty)["token"],
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: {
+        'billable_amount':billable_amount,
+        'month':month,
+        'plan':plan,
+        'userid':userid
+      },
+    );
+    print(res.body);
+    return res.body;
+  }*/
+  Future<String> createplan(String plan_type , int plan_price ,int plan_validity) async {
+    print(await jwtOrEmpty);
+    var res = await http.post(
+      Uri.parse('$SERVER_IP/createplan'),
+      headers: {
+        'Authorization': json.decode(await jwtOrEmpty)["token"],
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: {
+        'plan_type':plan_type,
+        'plan_price':plan_price.toString(),
+        'plan_validity':plan_validity.toString()
+      },
+    );
+    print(res.body);
+    print(res.statusCode);
+    return res.statusCode.toString();
+  }
+  void _addElementToList(String a1 ,int a2,int a3) async {
+     var res = await createplan(a1 ,  a2 ,  a3);
+     if(res=="200"){//new created
+      setState(() {
+        widget.plans.add(
+          Plan(id: "1000", type: a1, price: a2, validity: a3),
+        );
+      });
+      final scaffold = ScaffoldMessenger.of(context);
+      scaffold.showSnackBar(
+        SnackBar(
+          content: const Text('New Plan Created'),
+          action: SnackBarAction(label: 'UNDO', onPressed: scaffold.hideCurrentSnackBar),
+        ),
+      );
+    }else if(res=="201"){
+       //plan already exits
+       final scaffold = ScaffoldMessenger.of(context);
+       scaffold.showSnackBar(
+         SnackBar(
+           content: const Text('New Plan already exits'),
+           /*action: SnackBarAction(label: 'UNDO', onPressed: scaffold.hideCurrentSnackBar),*/
+         ),
+       );
+     }
+  }
+  }
 
 class PlanItem extends StatefulWidget {
   final List<Plan> plans;
@@ -145,9 +212,10 @@ class _PlanItemState extends State<PlanItem> {
   void initState() {
     super.initState();
     _typeController = TextEditingController(text: widget.plan.type);
-    _priceController = TextEditingController(text: widget.plan.price.toString());
-    _validityController = TextEditingController(text: widget.plan.validity.toString());
-
+    _priceController =
+        TextEditingController(text: widget.plan.price.toString());
+    _validityController =
+        TextEditingController(text: widget.plan.validity.toString());
   }
 
   @override
@@ -196,16 +264,19 @@ class _PlanItemState extends State<PlanItem> {
             ),
             SizedBox(width: 90.0),
             ElevatedButton(
-              onPressed: _isEditing ? null : () {
-                _removePlanAndUpdateList(widget.plan.type);
-                 deleteplan(widget.plan.id);
-                  onUpdatePlans: (updatedPlans) {
-                    setState(() {
-                      widget.onUpdatePlans(updatedPlans);
-                    });
-                  };
-                  print(widget.plans);
-              },
+              onPressed: _isEditing
+                  ? null
+                  : () {
+                      _removePlanAndUpdateList(widget.plan.type);
+                      deleteplan(widget.plan.id);
+                      onUpdatePlans:
+                      (updatedPlans) {
+                        setState(() {
+                          widget.onUpdatePlans(updatedPlans);
+                        });
+                      };
+                      print(widget.plans);
+                    },
               child: Text('Delete'),
             )
           ],
@@ -225,15 +296,16 @@ class _PlanItemState extends State<PlanItem> {
       }
     });
   }
+
   Future<String> get jwtOrEmpty async {
     var jwt = await storage.read(key: "jwt");
-    if(jwt == null) return "";
+    if (jwt == null) return "";
     return jwt;
   }
 
-    Future<String> deleteplan(String idd) async {
-            print(idd);
-      print(await jwtOrEmpty);
+  Future<String> deleteplan(String idd) async {
+    print(idd);
+    print(await jwtOrEmpty);
     var res = await http.post(
       Uri.parse('$SERVER_IP/deleteplan'),
       headers: {
@@ -249,8 +321,6 @@ class _PlanItemState extends State<PlanItem> {
   }
 
 
-
-
   @override
   void dispose() {
     _typeController.dispose();
@@ -258,7 +328,5 @@ class _PlanItemState extends State<PlanItem> {
     super.dispose();
   }
 }
-
-
 
 //TODO add a top bar navigation to go back to PLanselection.dart

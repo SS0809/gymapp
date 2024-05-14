@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:gymapp/PlanSelection.dart';
+import 'package:gymapp/plans/PlanSelection.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:gymapp/plans_edit.dart';
+import 'package:gymapp/plans/plans_edit.dart';
 import 'main.dart';
 import 'Login.dart';
-
-
 
 class HomePage extends StatefulWidget {
   final String jwt;
@@ -25,7 +23,7 @@ class HomePage extends StatefulWidget {
     }
 
     var payload =
-    json.decode(ascii.decode(base64.decode(base64.normalize(jwtParts[1]))));
+        json.decode(ascii.decode(base64.decode(base64.normalize(jwtParts[1]))));
     return HomePage(jwt, payload);
   }
 
@@ -34,7 +32,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
- /* List<Plan> plans = [
+  /* List<Plan> plans = [
     Plan(name: 'Plan 1', age: '20'),
     Plan(name: 'Plan 2', age: '25'),
     Plan(name: 'Plan 3', age: '30'),
@@ -43,7 +41,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Secret Data Screen")),
+      appBar: AppBar(title: Text("Home Screen")),
       body: Center(
         child: FutureBuilder(
           future: fetchData(),
@@ -55,36 +53,68 @@ class _HomePageState extends State<HomePage> {
             } else if (snapshot.hasData) {
               return Column(
                 children: <Widget>[
-                  Text("${widget.payload['username']}, here's the data:"),
+                  Text("WELCOME ${widget.payload['username']}, here's the data:"),
                   ElevatedButton(
-  onPressed: () async {
-    var response = await fetchplans();
-    print(json.decode(response));
-    List<Plan> plans = (json.decode(response) as List<dynamic>).map<Plan>((planData) {
-      return Plan(
-        id: planData['_id'],
-        type: planData['plan_type'],
-        price: planData['plan_price'],
-        validity: planData['plan_validity'],
-      );
-    }).toList();
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (context) => PlanSelectionPage(
-          plans: plans,
-          onUpdatePlans: (updatedPlans) {
-            setState(() {
-              plans = updatedPlans;
-            });
-          },
-        ),
-      ),
-    );
-  },
-  child: Text("Plans"),
-),
+                    onPressed: () async {
+                      var response = await fetchplans();
+                      print(json.decode(response));
+                      List<Plan> plans =
+                      (json.decode(response) as List<dynamic>)
+                          .map<Plan>((planData) {
+                        return Plan(
+                          id: planData['_id'],
+                          type: planData['plan_type'],
+                          price: planData['plan_price'],
+                          validity: planData['plan_validity'],
+                        );
+                      }).toList();
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => PlanSelectionPage(
+                            plans: plans,
+                            onUpdatePlans: (updatedPlans) {
+                              setState(() {
+                                plans = updatedPlans;
+                              });
+                            },
+                          ),
+                        ),
+                      );
+                    },
+                    child: Text("Plans"),
+                  ),
 
+                  ElevatedButton(
+                    onPressed: () async {
+                      var response = await fetchpayments();
+                      print(json.decode(response));
+                      List<Plan> plans =
+                      (json.decode(response) as List<dynamic>)
+                          .map<Plan>((planData) {
+                        return Plan(
+                          id: planData['_id'],
+                          type: planData['plan_type'],
+                          price: planData['plan_price'],
+                          validity: planData['plan_validity'],
+                        );
+                      }).toList();
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => PlanSelectionPage(
+                            plans: plans,
+                            onUpdatePlans: (updatedPlans) {
+                              setState(() {
+                                plans = updatedPlans;
+                              });
+                            },
+                          ),
+                        ),
+                      );
+                    },
+                    child: Text("Payments"),
+                  ),
                   ElevatedButton(
                     onPressed: () async {
                       await storage.delete(key: "jwt");
@@ -108,7 +138,7 @@ class _HomePageState extends State<HomePage> {
                     },
                     child: Text("Count++"),
                   ),
-                  Text((snapshot.data) ?? ""),
+                  //Text((snapshot.data) ?? ""),
                 ],
               );
             } else {
@@ -141,6 +171,16 @@ class _HomePageState extends State<HomePage> {
     );
     return res.body;
   }
+  Future<String> fetchpayments() async {
+    var res = await http.get(
+      Uri.parse('$SERVER_IP/getpayments'),
+      headers: {
+        'Authorization': json.decode(widget.jwt)["token"],
+        'Content-Type': 'application/json',
+      },
+    );
+    return res.body;
+  }
   Future<String> deleteplan(int idd) async {
     var res = await http.post(
       Uri.parse('$SERVER_IP/deleteplan'),
@@ -148,13 +188,12 @@ class _HomePageState extends State<HomePage> {
         'Authorization': json.decode(widget.jwt)["token"],
         'Content-Type': 'application/json',
       },
-      body: {json.encode({
-        'id': idd,
-      })},
+      body: {
+        json.encode({
+          'id': idd,
+        })
+      },
     );
     return res.body;
   }
-
-
 }
-

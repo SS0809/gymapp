@@ -3,7 +3,7 @@ const router = express.Router();
 import { bearerJwtAuthmustAdmin , bearerJwtAuth }  from '../middleware/cookieJwtAuth.js';
 import { login, signup, add, data, logout } from '../controllers/index.js';
 import { getPlan , getPlans , createPLan , updatePlan , deletePlan } from '../controllers/plans.js'
-
+import { createpayment , getpayments } from "../controllers/payment.js";
 //<-----------------------------------ADMIN-------------------------------------->
 router.post('/login', login);
 router.post('/logout', logout);
@@ -23,7 +23,8 @@ router.post('/createPLan',bearerJwtAuthmustAdmin ,createPLan);//done
 router.post('/deleteplan' ,bearerJwtAuthmustAdmin ,deletePlan);//done
 router.post('/updateplan' , bearerJwtAuthmustAdmin ,updatePlan);//done
 
-
+router.post('/createpayment',bearerJwtAuthmustAdmin ,createpayment);//done
+router.get('/getpayments',bearerJwtAuthmustAdmin ,getpayments);//done
 //<-----------------------------------CLIENT------------------------------------->
 router.post('/login', login);
 router.post('/logout', logout);

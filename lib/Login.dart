@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'dart:convert' show jsonEncode , json, base64, ascii;
+import 'dart:convert' show jsonEncode, json, base64, ascii;
 import 'main.dart';
 import 'Home.dart';
+
 class LoginPage extends StatefulWidget {
   @override
   _LoginPageState createState() => _LoginPageState();
@@ -18,30 +19,45 @@ class _LoginPageState extends State<LoginPage> {
   late double screenWidth, screenHeight;
 
   void displayDialog(context, title, text) => showDialog(
-    context: context,
-    builder: (context) =>
-        AlertDialog(title: Text(title), content: Text(text)),
-  );
+        context: context,
+        builder: (context) =>
+            AlertDialog(title: Text(title), content: Text(text)),
+      );
 
   Future<String> attemptLogIn(String username, String password) async {
     var res = await http.post(
-      Uri.parse('$SERVER_IP/login'), // or '$SERVER_IP/signup' based on your endpoint
-      headers: {'Content-Type': 'application/x-www-form-urlencoded'}, // Set the content type
-      body: 'username='+username+'&password='+password+'&type='+_selectedUserRole,
+      Uri.parse(
+          '$SERVER_IP/login'), // or '$SERVER_IP/signup' based on your endpoint
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      }, // Set the content type
+      body: 'username=' +
+          username +
+          '&password=' +
+          password +
+          '&type=' +
+          _selectedUserRole,
     );
-    if(res.statusCode == 200) return res.body;
+    if (res.statusCode == 200) return res.body;
     return "jwt";
   }
 
   Future<String> attemptSignUp(String username, String password) async {
     var res = await http.post(
       Uri.parse('$SERVER_IP/signup'),
-      headers: {'Content-Type': 'application/x-www-form-urlencoded'}, // Set the content type
-      body: 'username='+username+'&password='+password+'&type='+_selectedUserRole,
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      }, // Set the content type
+      body: 'username=' +
+          username +
+          '&password=' +
+          password +
+          '&type=' +
+          _selectedUserRole,
     );
     return res.body;
-
   }
+
   @override
   Widget build(BuildContext context) {
     screenWidth = MediaQuery.of(context).size.width;
@@ -62,7 +78,8 @@ class _LoginPageState extends State<LoginPage> {
             children: <Widget>[
               DropdownButton<String>(
                 value: _selectedUserRole,
-                style: const TextStyle(color: Colors.black) , padding: EdgeInsets.symmetric(horizontal: 75) ,
+                style: const TextStyle(color: Colors.black),
+                padding: EdgeInsets.symmetric(horizontal: 75),
                 dropdownColor: Colors.orange[200],
                 isExpanded: true,
                 items: <String>['USER', 'ADMIN'].map((String value) {
@@ -140,26 +157,32 @@ class _LoginPageState extends State<LoginPage> {
                   const Text("Don't have an account?"),
                   TextButton(
                       onPressed: () async {
-                          var username = _usernameController.text;
-                          var password = _passwordController.text;
+                        var username = _usernameController.text;
+                        var password = _passwordController.text;
 
-                          if(username.length < 4)
-                            displayDialog(context, "Invalid Username", "The username should be at least 4 characters long");
-                          else if(password.length < 4)
-                            displayDialog(context, "Invalid Password", "The password should be at least 4 characters long");
-                          else{
-                            var res = await attemptSignUp(username, password);
-                            if(res == "\"ok\"")
-                              displayDialog(context, "Success", "The user was created. Log in now.");
-                            else if(res == "409")
-                              displayDialog(context, "That username is already registered", "Please try to sign up using another username or log in if you already have an account.");
-                            else {
-                              displayDialog(context, "Error", "An unknown error occurred.");
-                            }
+                        if (username.length < 4)
+                          displayDialog(context, "Invalid Username",
+                              "The username should be at least 4 characters long");
+                        else if (password.length < 4)
+                          displayDialog(context, "Invalid Password",
+                              "The password should be at least 4 characters long");
+                        else {
+                          var res = await attemptSignUp(username, password);
+                          if (res == "\"ok\"")
+                            displayDialog(context, "Success",
+                                "The user was created. Log in now.");
+                          else if (res == "409")
+                            displayDialog(
+                                context,
+                                "That username is already registered",
+                                "Please try to sign up using another username or log in if you already have an account.");
+                          else {
+                            displayDialog(
+                                context, "Error", "An unknown error occurred.");
                           }
-                        },
-                        child: Text("Sign Up")
-                  ),
+                        }
+                      },
+                      child: Text("Sign Up")),
                 ],
               ),
               SizedBox(

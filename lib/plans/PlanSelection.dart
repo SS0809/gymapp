@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:gymapp/Home.dart';
 import 'package:gymapp/main.dart';
-import 'package:gymapp/plans_edit.dart';
+import 'package:gymapp/plans/plans_edit.dart';
 import 'package:gymapp/Login.dart';
+
 class PlanSelectionPage extends StatefulWidget {
   late List<Plan> plans;
   final Function(List<Plan>) onUpdatePlans;
@@ -103,7 +104,7 @@ class _PlanSelectionPageState extends State<PlanSelectionPage> {
               //   height: deviceHeight*0.03,
               // ),
 
-              ElevatedButton(
+            /*  ElevatedButton(
                 onPressed: () async {
                   Navigator.pushReplacement(
                     context,
@@ -131,7 +132,7 @@ class _PlanSelectionPageState extends State<PlanSelectionPage> {
                   ),
                 ),
                 child: Text("Edit"),
-              ),
+              ),*/
               SizedBox(
                 height: deviceHeight*0.009,
               ),
@@ -150,6 +151,25 @@ class _PlanSelectionPageState extends State<PlanSelectionPage> {
           ),
         ),
       ),
+        floatingActionButton: new FloatingActionButton(
+            elevation: 0.0,
+            child: new Icon(Icons.edit),
+            backgroundColor: Color(0xFF05AADC),
+          onPressed: () async {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => EditPlansPage(
+                    plans: widget.plans,
+                    onUpdatePlans: (updatedPlans) {
+                      setState(() {
+                        widget.onUpdatePlans(updatedPlans);
+                      });
+                    },
+                  )),
+            );
+          },
+        )
     );
   }
 }

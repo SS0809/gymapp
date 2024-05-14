@@ -38,7 +38,7 @@ const createPLan = async (req, res) => {
     try {
         const existingPlan = await Plan.findOne({ plan_type });
         if (existingPlan) {
-            return res.status(400).json({ msg: 'Plan already exists' });
+            return res.status(201).json({ msg: 'Plan already exists' });
         }
         const newPlan = new Plan({
             plan_type,
@@ -46,7 +46,7 @@ const createPLan = async (req, res) => {
             plan_validity
         });
         await newPlan.save();
-        return res.status(201).json(newPlan);
+        return res.status(200).json(newPlan);
     } catch (err) {
         console.error('Internal Error:', err);
         return res.status(500).json({ msg: 'Internal Server Error' });

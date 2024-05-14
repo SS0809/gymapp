@@ -1,17 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:gymapp/PlanSelection.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'dart:convert' show jsonEncode , json, base64, ascii;
 import 'package:gymapp/Login.dart';
 import 'package:gymapp/Home.dart';
-import 'package:gymapp/plans_edit.dart';
-import 'package:gymapp/PlanSelection.dart';
+import 'package:gymapp/plans/plans_edit.dart';
+import 'package:gymapp/plans/PlanSelection.dart';
 
 
 
-//const SERVER_IP = 'https://tahr-eminent-exactly.ngrok-free.app';
-const SERVER_IP = 'http://ec2-54-89-201-209.compute-1.amazonaws.com:82';
+const SERVER_IP = 'https://tahr-eminent-exactly.ngrok-free.app';
+//const SERVER_IP = 'http://ec2-54-89-201-209.compute-1.amazonaws.com:82';
 
 final storage = FlutterSecureStorage();
 
@@ -62,7 +61,7 @@ class MyApp extends StatelessWidget {
               // test for editplanspage
               // return EditPlansPage(plans: _plans);
                return LoginPage();
-              //return PlanSelectionPage();
+              // return PlanSelectionPage();
             }
           }
       ),

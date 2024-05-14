@@ -1,20 +1,27 @@
-import mongoose from "mongoose"; 
-const Payment=mongoose.Schema({  
-    user_id:{ 
-        type:String, 
-        require:true,
-    },
-    amount:{ 
-        type:Number, 
-        require:true, 
-        
-    },
-    desc:{ 
-        type:String, 
-        require:true, 
+import mongoose from "mongoose";
 
+// Define the Payment schema
+const PaymentSchema = mongoose.Schema({  
+    userid: { 
+        type: String, 
+        required: true,
     },
+    plan: { 
+        type: String, 
+        required: true,
+    },
+    month: { 
+        type: String, 
+        required: true,
+    },
+    billable_amount: { 
+        type: Number, 
+        required: true, 
+    }
 }); 
-const PaymentAPI=mongoose.connect("Payment",Payment); 
-export default PaymentAPI; 
 
+// Create a model based on the Payment schema
+const PaymentAPI = mongoose.model("payments", PaymentSchema); 
+
+// Export the Payment model
+export default PaymentAPI; 

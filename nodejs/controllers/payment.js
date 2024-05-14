@@ -1,17 +1,15 @@
-import express, { response } from "express"; 
-import mongoose from "mongoose"; 
 import Payment from '../modals/payment.schema.js'; 
-const payment=express.Router();  
-// Payment Method Created For Customer 
-
-payment.post('/payment',async(req,res)=>{  
+const createpayment = async(req,res)=>{  
     try{
-    const {user_id,amount,desc}=req.body; 
+    const { billable_amount,
+        month,
+        plan,
+        userid}=req.body; 
     const newpayment=new Payment({ 
-        user_id, 
-        amount, 
-        desc, 
-
+        billable_amount,
+        month,
+        plan,
+        userid
     }); 
     await newpayment.save(); 
     return res.status(201).json({msg:'Payment Created Sucessfully'}); 
@@ -19,14 +17,17 @@ payment.post('/payment',async(req,res)=>{
     catch(err){
         return res.status(404).json({msg:'Internal Server Errror'});
     }
-}); 
-payment.get('/payment/:id',async(req,res)=>{ 
+}; 
+const getpayments = async(req,res)=>{  
     try{ 
-        const pay=await Payment.find(); 
-        return res.status(201).json(pay);
+        const pay = await Payment.find({});
+        return res.status(200).json(pay);
     } 
     catch(err){
         console.log('Internal Error '); 
         return res.status(404).json({msg:'Internal Server Error'})
     }
-}); 
+}; 
+
+
+export { createpayment , getpayments };
