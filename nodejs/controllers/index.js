@@ -11,8 +11,8 @@ const getUser = async (username) => {
   try {
     mongoClient = new MongoClient(uri);
     await mongoClient.connect();
-    const db = mongoClient.db('JWT');
-    const userModel = db.collection('JWT_collection');
+    const db = mongoClient.db('BLEAN');
+    const userModel = db.collection('users');
     const user = await userModel.findOne({ username });
 
     if (!user) {
@@ -37,8 +37,8 @@ const updateCount = async (username) => {
   try {
     mongoClient = new MongoClient(uri);
     await mongoClient.connect();
-    const db = mongoClient.db('JWT');
-    const userModel = db.collection('JWT_collection');
+    const db = mongoClient.db('BLEAN');
+    const userModel = db.collection('users');
     const user = await userModel.findOne({ username });
 
     if (user) {
@@ -67,8 +67,8 @@ const saveUser = async (username, password ,type) => {
     mongoClient = new MongoClient(uri);
     await mongoClient.connect();
 
-    const db = mongoClient.db('JWT');
-    const userModel = db.collection('JWT_collection');
+    const db = mongoClient.db('BLEAN');
+    const userModel = db.collection('users');
 
     const existingUser = await userModel.findOne({ username });
 

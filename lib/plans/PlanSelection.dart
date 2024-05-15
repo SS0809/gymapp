@@ -25,10 +25,9 @@ class _PlanSelectionPageState extends State<PlanSelectionPage> {
     deviceWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: AppBar(
           title: Text('Featured Plans'),
-          backgroundColor: Color(0xFF05AADC),
+          backgroundColor:  Color(0xFF1A1A1A),
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: () {
@@ -52,7 +51,7 @@ class _PlanSelectionPageState extends State<PlanSelectionPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Center(
+             /* Center(
                 child: Text(
                   'Select a Plan',
                   style: TextStyle(
@@ -61,7 +60,7 @@ class _PlanSelectionPageState extends State<PlanSelectionPage> {
                     color: Colors.black,
                   ),
                 ),
-              ),
+              ),*/
               SizedBox(
                 height: deviceHeight*0.03,
               ),

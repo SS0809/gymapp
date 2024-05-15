@@ -40,10 +40,10 @@ class _PlanSelectionPageState extends State<PaymentPage> {
     deviceWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: Color(0xFF1A1A1A),
         appBar: AppBar(
           title: Text('Payments section'),
-          backgroundColor: Color(0xFF05AADC),
+            backgroundColor: Color(0xFF00875F),
           leading: IconButton(
             icon: Icon(Icons.arrow_back),
             onPressed: () {
@@ -91,7 +91,7 @@ class _PlanSelectionPageState extends State<PaymentPage> {
                           height: 80,
                           width: double.infinity,
                           decoration: BoxDecoration(
-                            color: Color(0xFF05AADC),
+                            color: Color(0xFF00B37E),
                             borderRadius: BorderRadius.circular(31.0),
                           ),
 
