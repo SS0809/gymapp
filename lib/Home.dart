@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'package:gymapp/plans/plans_edit.dart';
 import 'main.dart';
 import 'Login.dart';
+import 'package:gymapp/payments/payment.dart';
 
 class HomePage extends StatefulWidget {
   final String jwt;
@@ -89,20 +90,20 @@ class _HomePageState extends State<HomePage> {
                     onPressed: () async {
                       var response = await fetchpayments();
                       print(json.decode(response));
-                      List<Plan> plans =
+                      List<Payment> plans =
                       (json.decode(response) as List<dynamic>)
-                          .map<Plan>((planData) {
-                        return Plan(
-                          id: planData['_id'],
-                          type: planData['plan_type'],
-                          price: planData['plan_price'],
-                          validity: planData['plan_validity'],
+                          .map<Payment>((planData) {
+                        return Payment(
+                          billable_amount: planData['billable_amount'],
+                          month: planData['month'],
+                          plan: planData['plan'],
+                          userid: planData['userid'],
                         );
                       }).toList();
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => PlanSelectionPage(
+                          builder: (context) => PaymentPage(
                             plans: plans,
                             onUpdatePlans: (updatedPlans) {
                               setState(() {
