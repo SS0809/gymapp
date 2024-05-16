@@ -59,7 +59,7 @@ const updateCount = async (username) => {
   }
 }
 
-const saveUser = async (username, password) => {
+const saveUser = async (username, password ,type) => {
   const uri = process.env.DB_URI;
   let mongoClient;
 
@@ -76,7 +76,7 @@ const saveUser = async (username, password) => {
       throw new Error('Username already exists');
     }
 
-    const user = await userModel.insertOne({ username, password, count: 0 });
+    const user = await userModel.insertOne({ username, password, count: 0 ,type});
 
     return user;
   } catch (error) {
@@ -90,24 +90,26 @@ const saveUser = async (username, password) => {
 }
 
  const login = async (req, res) => {
-  const { username, password } = req.body;
+  const { username, password ,type } = req.body;
   const user = await getUser(username);
-
+  console.log({ username, password , type});
   if (user.password !== password) {
     return res.status(403).json({ error: "invalid login" });
   }
 
   delete user.password;
 
+  if(user.type && user.type == type){ 
   const token = jwt.sign(user, process.env.MY_SECRET, { expiresIn: "1h" });
   res.json({ token: token });
+ }
 };
 
  const signup = async (req, res) => {
-  const { username, password } = req.body;
+  const { username, password ,type} = req.body;
 
   try {
-    await saveUser(username, password);
+    await saveUser(username, password ,type);
     return res.json("ok");
   } catch (error) {
     console.error(error);

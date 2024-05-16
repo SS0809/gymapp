@@ -84,7 +84,7 @@ catch(err){
     return res.status(301).json({msg:'Internal Server Error'});
 }
 }) 
-export default member;
+export default Member;
 
 
 
