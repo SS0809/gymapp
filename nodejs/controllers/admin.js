@@ -4,7 +4,7 @@ const admin=express.Router();
 admin.get('/',async(req,res)=>{ 
     try{
         const admin=AdminSchmea.find(req.query);
-        return res.status(201).json(`Admin Fetched Sucsessfully`);
+        return res.status(201).json(`Data Fetched Sucsessfully`);
     } 
     catch(err){ 
         console.log(`Internal Server Error`); 
@@ -15,7 +15,7 @@ admin.get('/',async(req,res)=>{
         try{
         const ID=req.body.Id;  
         if(ID==user_id){ 
-            return res.status(201).json({msg:"Admin Sucsessfully Fetched"})
+            return res.status(201).json({msg:"Data Sucsessfully Fetched"})
         } 
         else{ 
             return res.status(401).json({msg:'Member with this id Not FOund'})
