@@ -1,4 +1,4 @@
-import Payment from '../modals/payment.schema.js'; 
+import Payment from '../modals/payment.js'; 
 const createpayment = async(req,res)=>{  
     try{
     const { billable_amount,

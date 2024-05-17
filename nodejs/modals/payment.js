@@ -17,6 +17,11 @@ const PaymentSchema = mongoose.Schema({
     billable_amount: { 
         type: Number, 
         required: true, 
+    },
+    timestamp: {
+        type: Date,
+        required: true,
+        default: Date.now
     }
 }); 
 
