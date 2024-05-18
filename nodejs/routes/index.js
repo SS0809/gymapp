@@ -28,7 +28,7 @@ router.post('/updateplan' , bearerJwtAuthmustAdmin ,updatePlan);//done
 //PAYMENT
 router.post('/createpayment',bearerJwtAuthmustAdmin ,createpayment);//done
 router.get('/getpayments',bearerJwtAuthmustAdmin ,getpayments);//done
-router.get('/revenuetotal',bearerJwtAuthmustAdmin,revenuetotal);
+router.post('/revenuetotal',bearerJwtAuthmustAdmin,revenuetotal);
 /*
 [
     { "year": 2024, "month": 1, "total": 301.25 },

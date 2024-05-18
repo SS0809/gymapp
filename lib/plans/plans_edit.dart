@@ -252,7 +252,26 @@ class _PlanItemState extends State<PlanItem> {
   late TextEditingController _priceController;
   late TextEditingController _validityController;
   bool _isEditing = false;
-
+  Future<String> updateplan(String id,
+      String plan_type, int plan_price, int plan_validity) async {
+    print(await jwtOrEmpty);
+    var res = await http.post(
+      Uri.parse('$SERVER_IP/updateplan'),
+      headers: {
+        'Authorization': json.decode(await jwtOrEmpty)["token"],
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: {
+        'id':widget.plan.id,
+        'plan_type': plan_type,
+        'plan_price': plan_price.toString(),
+        'plan_validity': plan_validity.toString()
+      },
+    );
+    print(res.body);
+    print(res.statusCode);
+    return res.statusCode.toString();
+  }
   @override
   void initState() {
     super.initState();
@@ -290,7 +309,10 @@ class _PlanItemState extends State<PlanItem> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             ElevatedButton(
-              onPressed: () {
+              onPressed:  () async {
+                if (_isEditing) {
+                  await updateplan(widget.plan.id,   _typeController.text, int.parse(_priceController.text), int.parse(_validityController.text));
+                  }
                 setState(() {
                   if (_isEditing) {
                     widget.onUpdate(

@@ -6,6 +6,29 @@ import 'package:gymapp/plans/plans_edit.dart';
 import 'main.dart';
 import 'Login.dart';
 import 'package:gymapp/payments/payment.dart';
+class Revenue {
+  final int year;
+  final String month;
+  final double total;
+
+  Revenue({required this.year, required this.month, required this.total});
+
+  factory Revenue.fromJson(Map<String, dynamic> json) {
+    return Revenue(
+      year: json['year'],
+      month: json['month'],
+      total: json['total'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'year': year,
+      'month': month,
+      'total': total,
+    };
+  }
+}
 
 class HomePage extends StatefulWidget {
   final String jwt;
@@ -88,8 +111,11 @@ class _HomePageState extends State<HomePage> {
 
                   ElevatedButton(
                     onPressed: () async {
+                      DateTime _now = DateTime.now();
                       var response = await fetchpayments();
-                      print(json.decode(response));
+                      var response2 = await fetchtotalrevenue(_now);
+                      print(json.decode(response2));
+
                       List<Payment> plans =
                       (json.decode(response) as List<dynamic>)
                           .map<Payment>((planData) {
@@ -104,6 +130,7 @@ class _HomePageState extends State<HomePage> {
                         context,
                         MaterialPageRoute(
                           builder: (context) => PaymentPage(
+                            currentrevenue:response2,
                             plans: plans,
                             onUpdatePlans: (updatedPlans) {
                               setState(() {
@@ -179,6 +206,19 @@ class _HomePageState extends State<HomePage> {
         'Authorization': json.decode(widget.jwt)["token"],
         'Content-Type': 'application/json',
       },
+    );
+    return res.body;
+  }
+  Future<String> fetchtotalrevenue(DateTime _now) async {
+    var res = await http.post(
+      Uri.parse('$SERVER_IP/revenuetotal'),
+      headers: {
+        'Authorization': json.decode(widget.jwt)["token"],
+      },
+      body:{
+        'year':_now.year.toString(),
+        'month':_now.month.toString()
+      }
     );
     return res.body;
   }
