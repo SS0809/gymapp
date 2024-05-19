@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "MY_SECRET=hello npx nodemon src/server.js",
-    "dev":"nodemon app"
+    "dev": "nodemon app"
   },
   "keywords": [],
   "author": "",
@@ -17,6 +17,7 @@
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.17.1",
+    "joi": "^17.13.1",
     "jsonwebtoken": "^8.5.1",
     "mongodb": "^6.3.0",
     "mongoose": "^8.3.4"

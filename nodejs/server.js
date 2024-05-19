@@ -8,6 +8,7 @@ import Connection from './connection/connection.js';
 import admindata from './controllers/admin.js'; 
 import Member from "./controllers/member.js"; 
 import membership from "./controllers/membership.controller..js"; 
+import Search from "./controllers/Search.cont.js";
 // import attendence from "./controllers/attendence.contr.js";
 const PORT = 8080; 
 import { config as dotenvConfig } from 'dotenv';
@@ -25,7 +26,8 @@ app.use(cookieParser());
 
 app.use("/", indexRouter); 
 app.use("/member",Member); 
-app.use("/membership",membership); 
+app.use("/membership",membership);  
+app.use("/Search",Search);
 // app.use("/attendence",attendence); 
 
 app.listen(PORT, () => {
