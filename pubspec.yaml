@@ -38,6 +38,7 @@ dependencies:
   http: ^1.2.1
   flutter_secure_storage: ^4.2.1
   dart_jsonwebtoken: ^2.14.0
+  syncfusion_flutter_datepicker: ^25.2.4
 
 dev_dependencies:
   flutter_test:
