@@ -4,6 +4,32 @@ import { MongoClient } from 'mongodb';
 import { config as dotenvConfig } from 'dotenv';
 dotenvConfig();
 
+const getSuggestions = async (req, res) => {
+  const { username } = req.query;
+  console.log(username);
+  const uri = process.env.DB_URI;
+  let mongoClient;
+  if (!username) {
+      return res.status(400).json({ message: 'Query parameter is required' });
+  }
+
+  try {
+
+    mongoClient = new MongoClient(uri);
+    await mongoClient.connect();
+    const db = mongoClient.db('BLEAN');
+    const userModel = db.collection('users');
+    const suggestions = await userModel.find({
+      username: { $regex: username, $options: 'i' }
+    }).limit(10).toArray();
+    
+      
+      res.json(suggestions);
+  } catch (err) {
+      res.status(500).json({ message: err.message });
+  }
+};
+
 const getUser = async (username) => {
   const uri = process.env.DB_URI;
   let mongoClient;
@@ -148,4 +174,4 @@ const saveUser = async (username, password ,type) => {
 };
 
 
-export { login, signup, add, data , logout};
+export { getSuggestions , login, signup, add, data , logout};

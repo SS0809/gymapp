@@ -1,13 +1,14 @@
 import express from "express";
 const router = express.Router();
 import { bearerJwtAuthmustAdmin , bearerJwtAuth }  from '../middleware/cookieJwtAuth.js';
-import { login, signup, add, data, logout } from '../controllers/index.js';
+import { getSuggestions, login, signup, add, data, logout } from '../controllers/index.js';
 import { getPlan , getPlans , createPLan , updatePlan , deletePlan } from '../controllers/plans.js'
 import { createpayment , getpayments } from "../controllers/payment.js";
 import { revenuetotal } from "../controllers/Revenue.js";
 //<-----------------------------------ADMIN-------------------------------------->
 router.post('/login', login);
 router.post('/logout', logout);
+router.get('/suggestions', bearerJwtAuthmustAdmin, getSuggestions);
 router.post('/add', bearerJwtAuth, add);
 router.get('/data', bearerJwtAuth, data);//homepage data
 router.post('/signup',bearerJwtAuthmustAdmin , signup);// adds new user
