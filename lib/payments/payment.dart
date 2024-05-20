@@ -1,10 +1,10 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:gymapp/Home.dart';
-import 'package:gymapp/main.dart';
-import 'package:gymapp/plans/plans_edit.dart';
-import 'package:gymapp/Login.dart';
+import '../Home.dart';
+import '../main.dart';
+import '../plans/plans_edit.dart';
+import '../Login.dart';
 
 class Payment {
   int billable_amount;

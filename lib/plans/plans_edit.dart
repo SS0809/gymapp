@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:gymapp/plans/PlanSelection.dart';
+import '../plans/PlanSelection.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:gymapp/plans/plans_edit.dart';
+import '../plans/plans_edit.dart';
 import '../main.dart';
 import '../Login.dart';
 

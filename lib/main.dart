@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'dart:convert' show jsonEncode , json, base64, ascii;
-import 'package:gymapp/Login.dart';
-import 'package:gymapp/Home.dart';
-import 'package:gymapp/plans/plans_edit.dart';
-import 'package:gymapp/plans/PlanSelection.dart';
+import '../Login.dart';
+import '../Home.dart';
+import '../plans/plans_edit.dart';
+import '../plans/PlanSelection.dart';
 
 
 

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:gymapp/Home.dart';
-import 'package:gymapp/main.dart';
-import 'package:gymapp/plans/plans_edit.dart';
-import 'package:gymapp/Login.dart';
+import 'package:gym_app/Home.dart';
+import 'package:gym_app/main.dart';
+import 'package:gym_app/plans/plans_edit.dart';
+import 'package:gym_app/Login.dart';
 
 class PlanSelectionPage extends StatefulWidget {
   late List<Plan> plans;

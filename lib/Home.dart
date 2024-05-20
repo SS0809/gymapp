@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:gymapp/plans/PlanSelection.dart';
+import '../plans/PlanSelection.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:gymapp/plans/plans_edit.dart';
+import '../plans/plans_edit.dart';
 import 'main.dart';
 import 'Login.dart';
-import 'package:gymapp/payments/payment.dart';
+import '../payments/payment.dart';
 class Revenue {
   final int year;
   final String month;
@@ -62,11 +62,44 @@ class _HomePageState extends State<HomePage> {
     Plan(name: 'Plan 3', age: '30'),
   ];
 */
+  late double deviceHeight;
+  late double deviceWidth;
   @override
   Widget build(BuildContext context) {
+    deviceHeight = MediaQuery.of(context).size.height;
+    deviceWidth = MediaQuery.of(context).size.width;
+
     return Scaffold(
-      appBar: AppBar(title: Text("Home Screen")),
-      body: Center(
+      body: Stack(
+        children: [
+          Positioned(
+            top: 40,
+              left: 10,
+              right: 10,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  IconButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      icon: Icon(
+                          Icons.arrow_back,
+                        size: 30,
+                      ),
+                  ),
+                  Spacer(),
+                  Padding(
+                      padding: const EdgeInsets.only(right: 10),
+                    child: CircleAvatar(
+                      backgroundImage: AssetImage("assets/image/gymlogo.png"),
+                      radius: 20,
+                    ),
+                  ),
+                ],
+              )
+          ),
+         Center(
         child: FutureBuilder(
           future: fetchData(),
           builder: (context, snapshot) {
@@ -77,95 +110,173 @@ class _HomePageState extends State<HomePage> {
             } else if (snapshot.hasData) {
               return Column(
                 children: <Widget>[
-                  Text("WELCOME ${widget.payload['username']}, here's the data:"),
-                  ElevatedButton(
-                    onPressed: () async {
-                      var response = await fetchplans();
-                      print(json.decode(response));
-                      List<Plan> plans =
-                      (json.decode(response) as List<dynamic>)
-                          .map<Plan>((planData) {
-                        return Plan(
-                          id: planData['_id'],
-                          type: planData['plan_type'],
-                          price: planData['plan_price'],
-                          validity: planData['plan_validity'],
-                        );
-                      }).toList();
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => PlanSelectionPage(
-                            plans: plans,
-                            onUpdatePlans: (updatedPlans) {
-                              setState(() {
-                                plans = updatedPlans;
-                              });
-                            },
-                          ),
-                        ),
-                      );
-                    },
-                    child: Text("Plans"),
+                  Center(
+
+                    child: Image.asset(
+                      "assets/images/gymlogo.png",
+                      width: deviceWidth*0.46,
+                      height: deviceHeight*0.16,
+                    ),
+                  ),
+                  Text(
+                      "WELCOME!", //${widget.payload['username']},",
+                    style: TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  SizedBox(
+                    height: deviceHeight*0.10,
                   ),
 
-                  ElevatedButton(
-                    onPressed: () async {
-                      DateTime _now = DateTime.now();
-                      var response = await fetchpayments();
-                      var response2 = await fetchtotalrevenue(_now);
-                      print(json.decode(response2));
-
-                      List<Payment> plans =
-                      (json.decode(response) as List<dynamic>)
-                          .map<Payment>((planData) {
-                        return Payment(
-                          billable_amount: planData['billable_amount'],
-                          month: planData['month'],
-                          plan: planData['plan'],
-                          userid: planData['userid'],
-                        );
-                      }).toList();
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => PaymentPage(
-                            currentrevenue:response2,
-                            plans: plans,
-                            onUpdatePlans: (updatedPlans) {
-                              setState(() {
-                                plans = updatedPlans;
-                              });
-                            },
+                  Container(
+                    height: deviceHeight*0.097,
+                    width: deviceWidth*0.74,
+                   decoration: BoxDecoration(
+                     color: Color(0xFF00875F),
+                   borderRadius: BorderRadius.circular(36),
+                   ),
+                    child: Row(
+                      children: [
+                        SizedBox(
+                          width: deviceWidth*0.1,
+                        ),
+                        Text(
+                          "Plans",
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.white,
                           ),
                         ),
-                      );
-                    },
-                    child: Text("Payments"),
+                        SizedBox(
+                          width: deviceWidth*0.18,
+                        ),
+                        ElevatedButton(
+                          onPressed: () async {
+                            var response = await fetchplans();
+                            print(json.decode(response));
+                            List<Plan> plans =
+                            (json.decode(response) as List<dynamic>)
+                                .map<Plan>((planData) {
+                              return Plan(
+                                id: planData['_id'],
+                                type: planData['plan_type'],
+                                price: planData['plan_price'],
+                                validity: planData['plan_validity'],
+                              );
+                            }).toList();
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => PlanSelectionPage(
+                                  plans: plans,
+                                  onUpdatePlans: (updatedPlans) {
+                                    setState(() {
+                                      plans = updatedPlans;
+                                    });
+                                  },
+                                ),
+                              ),
+                            );
+                          },
+                          child: Text("View"),
+                        ),
+                      ],
+                    ),
+
                   ),
-                  ElevatedButton(
-                    onPressed: () async {
-                      await storage.delete(key: "jwt");
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(builder: (context) => LoginPage()),
-                      );
-                    },
-                    child: Text("LOGOUT"),
+                  SizedBox(
+                    height: deviceHeight*0.03,
                   ),
-                  ElevatedButton(
-                    onPressed: () async {
-                      var res = await http.post(
-                        Uri.parse('$SERVER_IP/add'),
-                        headers: {
-                          'Authorization': json.decode(widget.jwt)["token"],
-                          'Content-Type': 'application/json',
-                        },
-                      );
-                      // Handle response
-                    },
-                    child: Text("Count++"),
+                  Container(
+
+                    height: deviceHeight*0.097,
+                    width: deviceWidth*0.74,
+                    decoration: BoxDecoration(
+                      color: Color(0xFF00875F),
+                      borderRadius: BorderRadius.circular(36),
+                    ),
+                    child: Row(
+                      children: [
+                      SizedBox(
+                      width: deviceWidth*0.1,
+                    ),
+                    Text(
+                      "Payment",
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.white,
+                      ),
+                    ),
+                        SizedBox(
+                          width: deviceWidth*0.10,
+                        ),
+                        ElevatedButton(
+                          onPressed: () async {
+                            DateTime _now = DateTime.now();
+                            var response = await fetchpayments();
+                            var response2 = await fetchtotalrevenue(_now);
+                            print(json.decode(response2));
+
+                            List<Payment> plans =
+                            (json.decode(response) as List<dynamic>)
+                                .map<Payment>((planData) {
+                              return Payment(
+                                billable_amount: planData['billable_amount'],
+                                month: planData['month'],
+                                plan: planData['plan'],
+                                userid: planData['userid'],
+                              );
+                            }).toList();
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => PaymentPage(
+                                  currentrevenue:response2,
+                                  plans: plans,
+                                  onUpdatePlans: (updatedPlans) {
+                                    setState(() {
+                                      plans = updatedPlans;
+                                    });
+                                  },
+                                ),
+                              ),
+                            );
+                          },
+                          child: Text("View"),
+                        ),
+                    ],
+                    ),
                   ),
+
+
+
+
+                  // ElevatedButton(
+                  //   onPressed: () async {
+                  //     await storage.delete(key: "jwt");
+                  //     Navigator.pushReplacement(
+                  //       context,
+                  //       MaterialPageRoute(builder: (context) => LoginPage()),
+                  //     );
+                  //   },
+                  //   child: Text("LOGOUT"),
+                  // ),
+                  // ElevatedButton(
+                  //   onPressed: () async {
+                  //     var res = await http.post(
+                  //       Uri.parse('$SERVER_IP/add'),
+                  //       headers: {
+                  //         'Authorization': json.decode(widget.jwt)["token"],
+                  //         'Content-Type': 'application/json',
+                  //       },
+                  //     );
+                  //     // Handle response
+                  //   },
+                  //   child: Text("Count++"),
+                  // ),
                   //Text((snapshot.data) ?? ""),
                 ],
               );
@@ -174,6 +285,8 @@ class _HomePageState extends State<HomePage> {
             }
           },
         ),
+      ),
+        ],
       ),
     );
   }
