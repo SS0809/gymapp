@@ -104,8 +104,12 @@ class _PlanSelectionPageState extends State<PaymentPage> {
                   );
                   if (picked != null) {
                     String revenue = await fetchTotalRevenue(picked);
+                    final List<dynamic> revenueList = json.decode(revenue);
+                    final int totalRevenue = revenueList.isNotEmpty
+                        ? revenueList[0]['total']
+                        : 0;
                     setState(() {
-                      selectedDate = "Revenue for ${picked.month}/${picked.year}: $revenue";
+                      selectedDate = "Revenue for ${picked.month}/${picked.year}: $totalRevenue";
                     });
                   }
                 },
