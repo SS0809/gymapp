@@ -6,6 +6,7 @@ import '../plans/plans_edit.dart';
 import 'main.dart';
 import 'Login.dart';
 import '../payments/payment.dart';
+
 class Revenue {
   final int year;
   final String month;
@@ -73,219 +74,261 @@ class _HomePageState extends State<HomePage> {
       body: Stack(
         children: [
           Positioned(
-            top: 40,
+              top: 40,
               left: 10,
               right: 10,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  IconButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                      icon: Icon(
-                          Icons.arrow_back,
-                        size: 30,
-                      ),
-                  ),
+                 /* IconButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    icon: Icon(
+                      Icons.arrow_back,
+                      size: 30,
+                    ),
+                  ),*/
                   Spacer(),
-                  Padding(
-                      padding: const EdgeInsets.only(right: 10),
-                    child: CircleAvatar(
-                      backgroundImage: AssetImage("assets/images/gymlogo.png"),
-                      radius: 20,
-                    ),
+           Padding(
+      padding: const EdgeInsets.only(right: 10),
+      child: Builder(
+        builder: (context) {
+          return GestureDetector(
+            onLongPress: () {
+              final RenderBox overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
+              showMenu(
+                context: context,
+                position: RelativeRect.fromLTRB(
+                  overlay.size.width - 30,
+                  0,
+                  overlay.size.width,
+                  overlay.size.height ,
+                ),
+                items: <PopupMenuEntry<int>>[
+                  const PopupMenuItem<int>(
+                    value: 0,
+                    child: Text('Details'),
+                  ),
+                  const PopupMenuItem<int>(
+                    value: 1,
+                    child: Text('Logout'),
                   ),
                 ],
-              )
-          ),
-         Center(
-        child: FutureBuilder(
-          future: fetchData(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return CircularProgressIndicator();
-            } else if (snapshot.hasError) {
-              return Text("An error occurred: ${snapshot.error}");
-            } else if (snapshot.hasData) {
-              return Column(
-                children: <Widget>[
-                  Center(
-
-                    child: Image.asset(
-                      "assets/images/gymlogo.png",
-                      width: deviceWidth*0.46,
-                      height: deviceHeight*0.16,
-                    ),
-                  ),
-                  Text(
-                      "WELCOME!", //${widget.payload['username']},",
-                    style: TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  SizedBox(
-                    height: deviceHeight*0.10,
-                  ),
-
-                  Container(
-                    height: deviceHeight*0.097,
-                    width: deviceWidth*0.74,
-                   decoration: BoxDecoration(
-                     color: Color(0xFF00875F),
-                   borderRadius: BorderRadius.circular(36),
-                   ),
-                    child: Row(
-                      children: [
-                        SizedBox(
-                          width: deviceWidth*0.1,
-                        ),
-                        Text(
-                          "Plans",
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.white,
-                          ),
-                        ),
-                        SizedBox(
-                          width: deviceWidth*0.18,
-                        ),
-                        ElevatedButton(
-                          onPressed: () async {
-                            var response = await fetchplans();
-                            print(json.decode(response));
-                            List<Plan> plans =
-                            (json.decode(response) as List<dynamic>)
-                                .map<Plan>((planData) {
-                              return Plan(
-                                id: planData['_id'],
-                                type: planData['plan_type'],
-                                price: planData['plan_price'],
-                                validity: planData['plan_validity'],
-                              );
-                            }).toList();
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => PlanSelectionPage(
-                                  plans: plans,
-                                  onUpdatePlans: (updatedPlans) {
-                                    setState(() {
-                                      plans = updatedPlans;
-                                    });
-                                  },
-                                ),
-                              ),
-                            );
-                          },
-                          child: Text("View"),
-                        ),
-                      ],
-                    ),
-
-                  ),
-                  SizedBox(
-                    height: deviceHeight*0.03,
-                  ),
-                  Container(
-
-                    height: deviceHeight*0.097,
-                    width: deviceWidth*0.74,
-                    decoration: BoxDecoration(
-                      color: Color(0xFF00875F),
-                      borderRadius: BorderRadius.circular(36),
-                    ),
-                    child: Row(
-                      children: [
-                      SizedBox(
-                      width: deviceWidth*0.1,
-                    ),
-                    Text(
-                      "Payment",
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.white,
-                      ),
-                    ),
-                        SizedBox(
-                          width: deviceWidth*0.10,
-                        ),
-                        ElevatedButton(
-                          onPressed: () async {
-                            DateTime _now = DateTime.now();
-                            var response = await fetchpayments();
-                            var response2 = await fetchtotalrevenue(_now);
-                            print(json.decode(response2));
-
-                            List<Payment> plans =
-                            (json.decode(response) as List<dynamic>)
-                                .map<Payment>((planData) {
-                              return Payment(
-                                billable_amount: planData['billable_amount'],
-                                month: planData['month'],
-                                plan: planData['plan'],
-                                userid: planData['userid'],
-                              );
-                            }).toList();
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => PaymentPage(
-                                  //currentrevenue:response2,
-                                  plans: plans,
-                                  onUpdatePlans: (updatedPlans) {
-                                    setState(() {
-                                      plans = updatedPlans;
-                                    });
-                                  },
-                                ),
-                              ),
-                            );
-                          },
-                          child: Text("View"),
-                        ),
-                    ],
-                    ),
-                  ),
-
-
-
-
-                  // ElevatedButton(
-                  //   onPressed: () async {
-                  //     await storage.delete(key: "jwt");
-                  //     Navigator.pushReplacement(
-                  //       context,
-                  //       MaterialPageRoute(builder: (context) => LoginPage()),
-                  //     );
-                  //   },
-                  //   child: Text("LOGOUT"),
-                  // ),
-                  // ElevatedButton(
-                  //   onPressed: () async {
-                  //     var res = await http.post(
-                  //       Uri.parse('$SERVER_IP/add'),
-                  //       headers: {
-                  //         'Authorization': json.decode(widget.jwt)["token"],
-                  //         'Content-Type': 'application/json',
-                  //       },
-                  //     );
-                  //     // Handle response
-                  //   },
-                  //   child: Text("Count++"),
-                  // ),
-                  //Text((snapshot.data) ?? ""),
-                ],
-              );
-            } else {
-              return CircularProgressIndicator();
-            }
-          },
-        ),
+              ).then((int? result) async {
+                if (result != null) {
+                  switch (result) {
+                    case 0:
+                      // Handle "Details" action
+                      print("Details selected");
+                      break;
+                    case 1:
+                      // Handle "Logout" action
+                        await storage.delete(key: "jwt");
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (context) => LoginPage()),
+                      );
+                      break;
+                  }
+                }
+              });
+            },
+            child: CircleAvatar(
+              backgroundImage: AssetImage("assets/images/gymlogo.png"),
+              radius: 20,
+            ),
+          );
+        },
       ),
+    ),
+                ],
+              )),
+          Center(
+            child: FutureBuilder(
+              future: fetchData(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return CircularProgressIndicator();
+                } else if (snapshot.hasError) {
+                  return Text("An error occurred: ${snapshot.error}");
+                } else if (snapshot.hasData) {
+                  return Column(
+                    children: <Widget>[
+                      SizedBox(
+                        height: deviceHeight * 0.20,
+                      ),
+                      Center(
+                        child: Image.asset(
+                          "assets/images/gymlogo.png",
+                          width: deviceWidth * 0.46,
+                          height: deviceHeight * 0.16,
+                        ),
+                      ),
+                      Text(
+                        "WELCOME!", //${widget.payload['username']},",
+                        style: TextStyle(
+                          fontSize: 28,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      SizedBox(
+                        height: deviceHeight * 0.10,
+                      ),
+
+                      Container(
+                        height: deviceHeight * 0.097,
+                        width: deviceWidth * 0.74,
+                        decoration: BoxDecoration(
+                          color: Color(0xFF00875F),
+                          borderRadius: BorderRadius.circular(36),
+                        ),
+                        child: Row(
+                          children: [
+                            SizedBox(
+                              width: deviceWidth * 0.1,
+                            ),
+                            Text(
+                              "Plans",
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.white,
+                              ),
+                            ),
+                            SizedBox(
+                              width: deviceWidth * 0.18,
+                            ),
+                            ElevatedButton(
+                              onPressed: () async {
+                                var response = await fetchplans();
+                                print(json.decode(response));
+                                List<Plan> plans =
+                                    (json.decode(response) as List<dynamic>)
+                                        .map<Plan>((planData) {
+                                  return Plan(
+                                    id: planData['_id'],
+                                    type: planData['plan_type'],
+                                    price: planData['plan_price'],
+                                    validity: planData['plan_validity'],
+                                  );
+                                }).toList();
+                                Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => PlanSelectionPage(
+                                      plans: plans,
+                                      onUpdatePlans: (updatedPlans) {
+                                        setState(() {
+                                          plans = updatedPlans;
+                                        });
+                                      },
+                                    ),
+                                  ),
+                                );
+                              },
+                              child: Text("View"),
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(
+                        height: deviceHeight * 0.03,
+                      ),
+                      Container(
+                        height: deviceHeight * 0.097,
+                        width: deviceWidth * 0.74,
+                        decoration: BoxDecoration(
+                          color: Color(0xFF00875F),
+                          borderRadius: BorderRadius.circular(36),
+                        ),
+                        child: Row(
+                          children: [
+                            SizedBox(
+                              width: deviceWidth * 0.1,
+                            ),
+                            Text(
+                              "Payment",
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.white,
+                              ),
+                            ),
+                            SizedBox(
+                              width: deviceWidth * 0.10,
+                            ),
+                            ElevatedButton(
+                              onPressed: () async {
+                                DateTime _now = DateTime.now();
+                                var response = await fetchpayments();
+                                var response2 = await fetchtotalrevenue(_now);
+                                print(json.decode(response2));
+
+                                List<Payment> plans =
+                                    (json.decode(response) as List<dynamic>)
+                                        .map<Payment>((planData) {
+                                  return Payment(
+                                    billable_amount:
+                                        planData['billable_amount'],
+                                    month: planData['month'],
+                                    plan: planData['plan'],
+                                    userid: planData['userid'],
+                                  );
+                                }).toList();
+                                Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => PaymentPage(
+                                      //currentrevenue:response2,
+                                      plans: plans,
+                                      onUpdatePlans: (updatedPlans) {
+                                        setState(() {
+                                          plans = updatedPlans;
+                                        });
+                                      },
+                                    ),
+                                  ),
+                                );
+                              },
+                              child: Text("View"),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      // ElevatedButton(
+                      //   onPressed: () async {
+                      //     await storage.delete(key: "jwt");
+                      //     Navigator.pushReplacement(
+                      //       context,
+                      //       MaterialPageRoute(builder: (context) => LoginPage()),
+                      //     );
+                      //   },
+                      //   child: Text("LOGOUT"),
+                      // ),
+                      // ElevatedButton(
+                      //   onPressed: () async {
+                      //     var res = await http.post(
+                      //       Uri.parse('$SERVER_IP/add'),
+                      //       headers: {
+                      //         'Authorization': json.decode(widget.jwt)["token"],
+                      //         'Content-Type': 'application/json',
+                      //       },
+                      //     );
+                      //     // Handle response
+                      //   },
+                      //   child: Text("Count++"),
+                      // ),
+                      //Text((snapshot.data) ?? ""),
+                    ],
+                  );
+                } else {
+                  return CircularProgressIndicator();
+                }
+              },
+            ),
+          ),
         ],
       ),
     );
@@ -312,6 +355,7 @@ class _HomePageState extends State<HomePage> {
     );
     return res.body;
   }
+
   Future<String> fetchpayments() async {
     var res = await http.get(
       Uri.parse('$SERVER_IP/getpayments'),
@@ -322,19 +366,17 @@ class _HomePageState extends State<HomePage> {
     );
     return res.body;
   }
+
   Future<String> fetchtotalrevenue(DateTime _now) async {
-    var res = await http.post(
-      Uri.parse('$SERVER_IP/revenuetotal'),
-      headers: {
-        'Authorization': json.decode(widget.jwt)["token"],
-      },
-      body:{
-        'year':_now.year.toString(),
-        'month':_now.month.toString()
-      }
-    );
+    var res = await http.post(Uri.parse('$SERVER_IP/revenuetotal'), headers: {
+      'Authorization': json.decode(widget.jwt)["token"],
+    }, body: {
+      'year': _now.year.toString(),
+      'month': _now.month.toString()
+    });
     return res.body;
   }
+
   Future<String> deleteplan(int idd) async {
     var res = await http.post(
       Uri.parse('$SERVER_IP/deleteplan'),

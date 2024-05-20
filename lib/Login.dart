@@ -64,7 +64,6 @@ class _LoginPageState extends State<LoginPage> {
     screenHeight = MediaQuery.of(context).size.height;
     return Scaffold(
         appBar: AppBar(
-          leading: Icon(Icons.arrow_back_ios_new),
           title: Text("BLean LogIn"),
           centerTitle: true,
         ),
