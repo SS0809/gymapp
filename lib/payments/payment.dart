@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter/material.dart';
 import '../Home.dart';
 import '../main.dart';
@@ -40,7 +40,24 @@ class _PlanSelectionPageState extends State<PaymentPage> {
   late double deviceHeight;
   late double deviceWidth;
   String? selectedDate;
+  final storage = FlutterSecureStorage();
+  String? jwt;
+  Color? currentColor;
 
+  @override
+  void initState() {
+    super.initState();
+    fetchJwtAndColor();
+  }
+
+  Future<void> fetchJwtAndColor() async {
+    String jwtValue = await storage.read(key: "jwt") ?? "";//TODO
+    String colorValue = await storage.read(key: "color") ?? "FF1A1A1A";
+    setState(() {
+      jwt = jwtValue;
+      currentColor = Color(int.parse(colorValue, radix: 16));
+    });
+  }
   Future<String> get jwtOrEmpty async {
     var jwt = await storage.read(key: "jwt");
     if (jwt == null) return "";
@@ -55,7 +72,7 @@ class _PlanSelectionPageState extends State<PaymentPage> {
       },
       body: {
         'year': date.year.toString(),
-        'month': date.month.toString()
+        'month': date.month.toString(),
       },
     );
     return res.body;
@@ -70,7 +87,7 @@ class _PlanSelectionPageState extends State<PaymentPage> {
       backgroundColor: const Color(0xFF1A1A1A),
       appBar: AppBar(
         title: const Text('Payments section'),
-        backgroundColor: const Color(0xFF00875F),
+        backgroundColor: currentColor ?? Color(0xFF00875F),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
@@ -113,9 +130,7 @@ class _PlanSelectionPageState extends State<PaymentPage> {
                     });
                   }
                 },
-                child: Text(selectedDate == null
-                    ? "Revenue Date"
-                    : selectedDate!),
+                child: Text(selectedDate == null ? "Revenue Date" : selectedDate!),
               ),
               SizedBox(
                 height: deviceHeight * 0.03,
@@ -130,7 +145,7 @@ class _PlanSelectionPageState extends State<PaymentPage> {
                           height: 80,
                           width: double.infinity,
                           decoration: BoxDecoration(
-                            color: const Color(0xFF00B37E),
+                            color: currentColor ?? Color(0xFF00B37E),
                             borderRadius: BorderRadius.circular(31.0),
                           ),
                           child: Center(

@@ -19,7 +19,19 @@ class PlanSelectionPage extends StatefulWidget {
 class _PlanSelectionPageState extends State<PlanSelectionPage> {
   late double deviceHeight;
   late double deviceWidth;
+  Color? currentColor;
   @override
+  void initState() {
+    super.initState();
+    fetchColor();
+  }
+
+  Future<void> fetchColor() async {
+    String colorValue = await storage.read(key: "color") ?? "FF1A1A1A";
+    setState(() {
+      currentColor = Color(int.parse(colorValue, radix: 16));
+    });
+  }
   Widget build(BuildContext context) {
     deviceHeight = MediaQuery.of(context).size.height;
     deviceWidth = MediaQuery.of(context).size.width;
@@ -75,7 +87,7 @@ class _PlanSelectionPageState extends State<PlanSelectionPage> {
                         height: 80,
                         width: double.infinity,
                         decoration: BoxDecoration(
-                          color: Color(0xFF05AADC),
+                          color: currentColor ??  Color(0xFF05AADC),
                           borderRadius: BorderRadius.circular(31.0),
                         ),
 
@@ -153,7 +165,7 @@ class _PlanSelectionPageState extends State<PlanSelectionPage> {
         floatingActionButton: new FloatingActionButton(
             elevation: 0.0,
             child: new Icon(Icons.edit),
-            backgroundColor: Color(0xFF05AADC),
+            backgroundColor: currentColor ??  Color(0xFF05AADC),
           onPressed: () async {
             Navigator.pushReplacement(
               context,

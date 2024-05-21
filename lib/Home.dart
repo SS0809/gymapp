@@ -6,6 +6,7 @@ import '../plans/plans_edit.dart';
 import 'main.dart';
 import 'Login.dart';
 import '../payments/payment.dart';
+import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 
 class Revenue {
   final int year;
@@ -65,6 +66,14 @@ class _HomePageState extends State<HomePage> {
 */
   late double deviceHeight;
   late double deviceWidth;
+  // create some values
+  Color pickerColor = Color(0xFF741BA0);
+  Color currentColor = Color(0xFF00875F);
+
+// ValueChanged<Color> callback
+  void changeColor(Color color) {
+    setState(() => pickerColor = color);
+  }
   @override
   Widget build(BuildContext context) {
     deviceHeight = MediaQuery.of(context).size.height;
@@ -90,58 +99,81 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ),*/
                   Spacer(),
-           Padding(
-      padding: const EdgeInsets.only(right: 10),
-      child: Builder(
-        builder: (context) {
-          return GestureDetector(
-            onLongPress: () {
-              final RenderBox overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
-              showMenu(
-                context: context,
-                position: RelativeRect.fromLTRB(
-                  overlay.size.width - 30,
-                  0,
-                  overlay.size.width,
-                  overlay.size.height ,
+ Padding(
+          padding: const EdgeInsets.only(right: 10),
+          child: Builder(
+            builder: (context) {
+              return GestureDetector(
+                onLongPress: () {
+                  final RenderBox overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
+                  showMenu(
+                    context: context,
+                    position: RelativeRect.fromLTRB(
+                      overlay.size.width - 30,
+                      0,
+                      overlay.size.width,
+                      overlay.size.height,
+                    ),
+                    items: <PopupMenuEntry<int>>[
+                      const PopupMenuItem<int>(
+                        value: 0,
+                        child: Text('MyTheme'),
+                      ),
+                      const PopupMenuItem<int>(
+                        value: 1,
+                        child: Text('Logout'),
+                      ),
+                    ],
+                  ).then((int? result) async {
+                    if (result != null) {
+                      switch (result) {
+                        case 0:
+                          // Handle "Details" action
+                          showDialog(
+                            context: context,
+                            builder: (context) {
+                              return AlertDialog(
+                                title: const Text('Pick a color!'),
+                                content: SingleChildScrollView(
+                                  child: ColorPicker(
+                                    pickerColor: pickerColor,
+                                    onColorChanged: changeColor,
+                                  ),
+                                ),
+                                actions: <Widget>[
+                                  ElevatedButton(
+                                    child: const Text('Got it'),
+                                    onPressed: () {
+                                      storage.write(key: "color", value: pickerColor.toHexString() ?? "");
+                                      setState(() => currentColor = pickerColor);
+                                      Navigator.of(context).pop();
+                                    },
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                          break;
+                        case 1:
+                          // Handle "Logout" action
+                          await storage.delete(key: "jwt");
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(builder: (context) => LoginPage()),
+                          );
+                          break;
+                      }
+                    }
+                  });
+                },
+                child: CircleAvatar(
+                  backgroundImage: AssetImage("assets/images/gymlogo.png"),
+                  radius: 20,
                 ),
-                items: <PopupMenuEntry<int>>[
-                  const PopupMenuItem<int>(
-                    value: 0,
-                    child: Text('Details'),
-                  ),
-                  const PopupMenuItem<int>(
-                    value: 1,
-                    child: Text('Logout'),
-                  ),
-                ],
-              ).then((int? result) async {
-                if (result != null) {
-                  switch (result) {
-                    case 0:
-                      // Handle "Details" action
-                      print("Details selected");
-                      break;
-                    case 1:
-                      // Handle "Logout" action
-                        await storage.delete(key: "jwt");
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(builder: (context) => LoginPage()),
-                      );
-                      break;
-                  }
-                }
-              });
+              );
             },
-            child: CircleAvatar(
-              backgroundImage: AssetImage("assets/images/gymlogo.png"),
-              radius: 20,
-            ),
-          );
-        },
-      ),
-    ),
+          ),
+        ),
                 ],
               )),
           Center(
@@ -180,7 +212,7 @@ class _HomePageState extends State<HomePage> {
                         height: deviceHeight * 0.097,
                         width: deviceWidth * 0.74,
                         decoration: BoxDecoration(
-                          color: Color(0xFF00875F),
+                          color: currentColor,
                           borderRadius: BorderRadius.circular(36),
                         ),
                         child: Row(
@@ -239,7 +271,7 @@ class _HomePageState extends State<HomePage> {
                         height: deviceHeight * 0.097,
                         width: deviceWidth * 0.74,
                         decoration: BoxDecoration(
-                          color: Color(0xFF00875F),
+                          color: currentColor,
                           borderRadius: BorderRadius.circular(36),
                         ),
                         child: Row(
