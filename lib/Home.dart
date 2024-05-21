@@ -74,6 +74,7 @@ class _HomePageState extends State<HomePage> {
   void changeColor(Color color) {
     setState(() => pickerColor = color);
   }
+
   @override
   Widget build(BuildContext context) {
     deviceHeight = MediaQuery.of(context).size.height;
@@ -89,7 +90,7 @@ class _HomePageState extends State<HomePage> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                 /* IconButton(
+                  /* IconButton(
                     onPressed: () {
                       Navigator.pop(context);
                     },
@@ -99,81 +100,92 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ),*/
                   Spacer(),
- Padding(
-          padding: const EdgeInsets.only(right: 10),
-          child: Builder(
-            builder: (context) {
-              return GestureDetector(
-                onLongPress: () {
-                  final RenderBox overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
-                  showMenu(
-                    context: context,
-                    position: RelativeRect.fromLTRB(
-                      overlay.size.width - 30,
-                      0,
-                      overlay.size.width,
-                      overlay.size.height,
-                    ),
-                    items: <PopupMenuEntry<int>>[
-                      const PopupMenuItem<int>(
-                        value: 0,
-                        child: Text('MyTheme'),
-                      ),
-                      const PopupMenuItem<int>(
-                        value: 1,
-                        child: Text('Logout'),
-                      ),
-                    ],
-                  ).then((int? result) async {
-                    if (result != null) {
-                      switch (result) {
-                        case 0:
-                          // Handle "Details" action
-                          showDialog(
-                            context: context,
-                            builder: (context) {
-                              return AlertDialog(
-                                title: const Text('Pick a color!'),
-                                content: SingleChildScrollView(
-                                  child: ColorPicker(
-                                    pickerColor: pickerColor,
-                                    onColorChanged: changeColor,
-                                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(right: 16 ,top: 8),
+                    child: Builder(
+                      builder: (context) {
+                        return GestureDetector(
+                          onLongPress: () {
+                            final RenderBox overlay = Overlay.of(context)
+                                .context
+                                .findRenderObject() as RenderBox;
+                            showMenu(
+                              context: context,
+                              position: RelativeRect.fromLTRB(
+                                overlay.size.width - 30,
+                                0,
+                                overlay.size.width,
+                                overlay.size.height,
+                              ),
+                              items: <PopupMenuEntry<int>>[
+                                const PopupMenuItem<int>(
+                                  value: 0,
+                                  child: Text('MyTheme'),
                                 ),
-                                actions: <Widget>[
-                                  ElevatedButton(
-                                    child: const Text('Got it'),
-                                    onPressed: () {
-                                      storage.write(key: "color", value: pickerColor.toHexString() ?? "");
-                                      setState(() => currentColor = pickerColor);
-                                      Navigator.of(context).pop();
-                                    },
-                                  ),
-                                ],
-                              );
-                            },
-                          );
-                          break;
-                        case 1:
-                          // Handle "Logout" action
-                          await storage.delete(key: "jwt");
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(builder: (context) => LoginPage()),
-                          );
-                          break;
-                      }
-                    }
-                  });
-                },
-                child: CircleAvatar(
-                  backgroundImage: AssetImage("assets/images/gymlogo.png"),
-                  radius: 20,
-                ),
-              );
-            },
-          ),
-        ),
+                                const PopupMenuItem<int>(
+                                  value: 1,
+                                  child: Text('Logout'),
+                                ),
+                              ],
+                            ).then((int? result) async {
+                              if (result != null) {
+                                switch (result) {
+                                  case 0:
+                                    // Handle "Details" action
+                                    showDialog(
+                                      context: context,
+                                      builder: (context) {
+                                        return AlertDialog(
+                                          title: const Text('Pick a color!'),
+                                          content: SingleChildScrollView(
+                                            child: ColorPicker(
+                                              pickerColor: pickerColor,
+                                              onColorChanged: changeColor,
+                                            ),
+                                          ),
+                                          actions: <Widget>[
+                                            ElevatedButton(
+                                              child: const Text('Got it'),
+                                              onPressed: () {
+                                                storage.write(
+                                                    key: "color",
+                                                    value: pickerColor
+                                                            .toHexString() ??
+                                                        "");
+                                                setState(() =>
+                                                    currentColor = pickerColor);
+                                                Navigator.of(context).pop();
+                                              },
+                                            ),
+                                          ],
+                                        );
+                                      },
+                                    );
+                                    break;
+                                  case 1:
+                                    // Handle "Logout" action
+                                    await storage.delete(key: "jwt");
+                                    Navigator.pushReplacement(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => LoginPage()),
+                                    );
+                                    break;
+                                }
+                              }
+                            });
+                          },
+                          child: CircleAvatar(
+                            backgroundImage:
+                                AssetImage("assets/images/ic_launcher1.png"),
+                            radius: 25,
+                            backgroundColor: Colors
+                                .black, // Set the background color to black
+                          ),
+                        );
+                      },
+                    ),
+                  ),
                 ],
               )),
           Center(
@@ -209,7 +221,7 @@ class _HomePageState extends State<HomePage> {
                       ),
 
                       Container(
-                        height: deviceHeight * 0.097,
+                        height: deviceHeight * 0.087,
                         width: deviceWidth * 0.74,
                         decoration: BoxDecoration(
                           color: currentColor,
@@ -236,8 +248,8 @@ class _HomePageState extends State<HomePage> {
                                 var response = await fetchplans();
                                 print(json.decode(response));
                                 List<Plan> plans =
-                                    (json.decode(response) as List<dynamic>)
-                                        .map<Plan>((planData) {
+                                (json.decode(response) as List<dynamic>)
+                                    .map<Plan>((planData) {
                                   return Plan(
                                     id: planData['_id'],
                                     type: planData['plan_type'],
@@ -268,7 +280,7 @@ class _HomePageState extends State<HomePage> {
                         height: deviceHeight * 0.03,
                       ),
                       Container(
-                        height: deviceHeight * 0.097,
+                        height: deviceHeight * 0.087,
                         width: deviceWidth * 0.74,
                         decoration: BoxDecoration(
                           color: currentColor,
@@ -298,11 +310,11 @@ class _HomePageState extends State<HomePage> {
                                 print(json.decode(response2));
 
                                 List<Payment> plans =
-                                    (json.decode(response) as List<dynamic>)
-                                        .map<Payment>((planData) {
+                                (json.decode(response) as List<dynamic>)
+                                    .map<Payment>((planData) {
                                   return Payment(
                                     billable_amount:
-                                        planData['billable_amount'],
+                                    planData['billable_amount'],
                                     month: planData['month'],
                                     plan: planData['plan'],
                                     userid: planData['userid'],
@@ -323,6 +335,40 @@ class _HomePageState extends State<HomePage> {
                                   ),
                                 );
                               },
+                              child: Text("View"),
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(
+                        height: deviceHeight * 0.03,
+                      ),
+                      Container(
+                        height: deviceHeight * 0.087,
+                        width: deviceWidth * 0.74,
+                        decoration: BoxDecoration(
+                          color: currentColor,
+                          borderRadius: BorderRadius.circular(36),
+                        ),
+                        child: Row(
+                          children: [
+                            SizedBox(
+                              width: deviceWidth * 0.1,
+                            ),
+                            Text(
+                              "Content",
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.white,
+                              ),
+                            ),
+                            SizedBox(
+                              width: deviceWidth * 0.10,
+                            ),
+                            ElevatedButton(
+                              onPressed: () {
+                                },
                               child: Text("View"),
                             ),
                           ],
