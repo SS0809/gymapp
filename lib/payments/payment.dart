@@ -103,7 +103,7 @@ class _PlanSelectionPageState extends State<PaymentPage> {
       body: Center(
         child: Padding(
           padding: EdgeInsets.only(
-            bottom: deviceHeight * 0.4,
+            bottom: deviceHeight * 0.04,
             left: deviceWidth * 0.08,
             right: deviceWidth * 0.08,
           ),
@@ -142,7 +142,7 @@ class _PlanSelectionPageState extends State<PaymentPage> {
                     return Column(
                       children: [
                         Container(
-                          height: 80,
+                          height: 100,
                           width: double.infinity,
                           decoration: BoxDecoration(
                             color: currentColor ?? Color(0xFF00B37E),
@@ -190,7 +190,7 @@ class _PlanSelectionPageState extends State<PaymentPage> {
                         ),
                         SizedBox(
                           height: deviceHeight * 0.02,
-                        )
+                        ),
                       ],
                     );
                   },
