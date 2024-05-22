@@ -21,5 +21,5 @@ const SearchApi=mongoose.Schema({
 
 
 }); 
-const Search=mongoose.connect("SEARCH",SearchApi); 
+const Search=mongoose.model("SEARCH",SearchApi); 
 export default Search; 

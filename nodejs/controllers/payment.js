@@ -28,6 +28,16 @@ const getpayments = async(req,res)=>{
         return res.status(404).json({msg:'Internal Server Error'})
     }
 }; 
+const getuserpayment = async(req,res)=>{
+    const username_incoming = req.user.username;
+    try{
+    const payments = await Payment.find({ userid: username_incoming });
+    return res.status(200).json(payments);
+    }
+    catch(err){
+        console.log('Internal Error '); 
+        return res.status(404).json({msg:'Internal Server Error'})
+    }
+}
 
-
-export { createpayment , getpayments };
+export { getuserpayment , createpayment , getpayments };
