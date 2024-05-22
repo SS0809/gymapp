@@ -3,7 +3,7 @@ name: iOS-ipa-build
 on:
   push:
     branches:
-      - '*'
+      - 'master'
 
 jobs:
   build-ios:

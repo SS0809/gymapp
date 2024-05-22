@@ -7,6 +7,7 @@ import 'main.dart';
 import 'Login.dart';
 import '../payments/payment.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
+import '../docs/docs.dart';
 
 class Revenue {
   final int year;
@@ -395,7 +396,13 @@ class _HomePageState extends State<HomePage> {
                             ),
                             ElevatedButton(
                               onPressed: () {
-                                },
+                                Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => MyDocs(
+                                    ),
+                                  ),
+                                );},
                               child: Text("View"),
                             ),
                           ],

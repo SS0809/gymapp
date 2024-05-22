@@ -3,7 +3,7 @@ name: Build & Deploy & Release and Pages builder
 on:
   push:
     branches:
-      - '*'
+      - 'master'
 
 jobs:
   build-and-deploy:
