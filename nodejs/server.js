@@ -22,7 +22,11 @@ app.use(
   })
 );
 app.use(cookieParser());
+import multer from 'multer';
+const upload = multer({ dest: 'datauploads/' }); // Specify a temporary directory for uploaded files
 
+// Middleware to handle file uploads
+app.use(upload.single('file')); 
 
 app.use("/", indexRouter); 
 app.use("/member",Member); 

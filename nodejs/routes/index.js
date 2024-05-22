@@ -5,6 +5,7 @@ import { getSuggestions, login, signup, add, data, logout } from '../controllers
 import { getPlan , getPlans , createPLan , updatePlan , deletePlan } from '../controllers/plans.js'
 import { getuserpayment , createpayment , getpayments } from "../controllers/payment.js";
 import { revenuetotal } from "../controllers/Revenue.js";
+import { uploaddata , getAlldata, deletedata } from "../controllers/content.js";
 //<-----------------------------------ADMIN-------------------------------------->
 router.post('/login', login);
 router.post('/logout', logout);
@@ -37,6 +38,12 @@ router.post('/revenuetotal',bearerJwtAuthmustAdmin,revenuetotal);
     { "year": 2024, "month": 2, "total": 300.00 }
 ]
 */  
+
+//Content
+router.post('/uploaddata' , bearerJwtAuthmustAdmin , uploaddata);//done
+router.get('/getalldata' , bearerJwtAuthmustAdmin , getAlldata);//done
+router.post('/deletedata'  , deletedata);
+
 //<-----------------------------------CLIENT------------------------------------->
 router.post('/login', login);
 router.post('/logout', logout);
