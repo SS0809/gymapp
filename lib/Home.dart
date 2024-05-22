@@ -395,14 +395,46 @@ class _HomePageState extends State<HomePage> {
                               width: deviceWidth * 0.10,
                             ),
                             ElevatedButton(
-                              onPressed: () {
-                                Navigator.pushReplacement(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => MyDocs(
+                              onPressed: () async {
+                                if(json.decode(widget.jwt)["type"]=="ADMIN"){
+                                  var response = await fetchalldata();
+                                  print(response);
+                                  List<Docs> docs =
+                                  (json.decode(response) as List<dynamic>)
+                                      .map<Docs>((planData) {
+                                    return Docs(
+                                      filename: planData['filename'],
+                                      resource_type: planData['resource_type'],
+                                      secure_url: planData['secure_url'],
+                                    );
+                                  }).toList();
+                                  Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => MyDocs(
+                                        docs:docs,
+                                      ),//admin
                                     ),
-                                  ),
-                                );},
+                                  );}else {
+                                  var response = await fetchalldata();
+                                  List<Docs> docs =
+                                  (json.decode(response) as List<dynamic>)
+                                      .map<Docs>((planData) {
+                                    return Docs(
+                                      filename: planData['filename'],
+                                      resource_type: planData['resource_type'],
+                                      secure_url: planData['secure_url'],
+                                    );
+                                  }).toList();
+                                  Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => MyDocs(
+                                        docs:docs,
+                                      ),//admin
+                                    ),
+                                  );}
+                              },
                               child: Text("View"),
                             ),
                           ],
@@ -471,6 +503,16 @@ class _HomePageState extends State<HomePage> {
   Future<String> fetchpayments() async {
     var res = await http.get(
       Uri.parse('$SERVER_IP/getpayments'),
+      headers: {
+        'Authorization': json.decode(widget.jwt)["token"],
+        'Content-Type': 'application/json',
+      },
+    );
+    return res.body;
+  }
+  Future<String> fetchalldata() async {
+    var res = await http.get(
+      Uri.parse('$SERVER_IP/getalldata'),
       headers: {
         'Authorization': json.decode(widget.jwt)["token"],
         'Content-Type': 'application/json',

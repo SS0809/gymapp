@@ -6,12 +6,22 @@ import '../Login.dart';
 import '../Home.dart';
 import '../plans/plans_edit.dart';
 import '../plans/PlanSelection.dart';
-
+import 'package:permission_handler/permission_handler.dart';
 
 //const SERVER_IP = 'https://tahr-eminent-exactly.ngrok-free.app';
 const SERVER_IP = 'http://ec2-54-89-201-209.compute-1.amazonaws.com:82';
 
 final storage = FlutterSecureStorage();
+
+
+Future<void> requestPermissions() async {
+  var status = await Permission.storage.status;
+  if (!status.isGranted) {
+    await Permission.storage.request();
+  }
+}
+
+
 
 void main() {
   runApp(MyApp());
@@ -44,6 +54,7 @@ class MyApp extends StatelessWidget {
               var str = snapshot.data;
               print(str);
               var jwt = str?.split(".");
+              requestPermissions();
               if (jwt?.length != 3) {
                 return LoginPage(); // If the JWT token is invalid or empty, redirect to the LoginPage
               } else {

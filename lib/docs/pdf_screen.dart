@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
 
 
+
 class PDFScreen extends StatefulWidget {
   final String? path;
 
@@ -14,8 +15,7 @@ class PDFScreen extends StatefulWidget {
 }
 
 class _PDFScreenState extends State<PDFScreen> with WidgetsBindingObserver {
-  final Completer<PDFViewController> _controller =
-  Completer<PDFViewController>();
+  final Completer<PDFViewController> _controller = Completer<PDFViewController>();
   int? pages = 0;
   int? currentPage = 0;
   bool isReady = false;
@@ -44,8 +44,7 @@ class _PDFScreenState extends State<PDFScreen> with WidgetsBindingObserver {
             pageSnap: true,
             defaultPage: currentPage!,
             fitPolicy: FitPolicy.BOTH,
-            preventLinkNavigation:
-            false, // if set to true the link is handled in flutter
+            preventLinkNavigation: false,
             onRender: (_pages) {
               setState(() {
                 pages = _pages;
