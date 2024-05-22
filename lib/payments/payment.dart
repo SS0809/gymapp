@@ -111,6 +111,7 @@ class _PlanSelectionPageState extends State<PaymentPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              if( widget.plans.length > 1)
               ElevatedButton(
                 onPressed: () async {
                   final DateTime? picked = await showDatePicker(

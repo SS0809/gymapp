@@ -304,6 +304,7 @@ class _HomePageState extends State<HomePage> {
                             ),
                             ElevatedButton(
                               onPressed: () async {
+                                if(json.decode(widget.jwt)["type"]=="ADMIN"){
                                 DateTime _now = DateTime.now();
                                 var response = await fetchpayments();
                                 var response2 = await fetchtotalrevenue(_now);
@@ -333,7 +334,33 @@ class _HomePageState extends State<HomePage> {
                                       },
                                     ),
                                   ),
-                                );
+                                );}else {
+                                  var response = await fetchuserpayments();
+                                  List<Payment> plans =
+                                  (json.decode(response) as List<dynamic>)
+                                      .map<Payment>((planData) {
+                                    return Payment(
+                                      billable_amount:
+                                      planData['billable_amount'],
+                                      month: planData['month'],
+                                      plan: planData['plan'],
+                                      userid: planData['userid'],
+                                    );
+                                  }).toList();
+                                  Navigator.pushReplacement(
+                                      context,
+                                      MaterialPageRoute(
+                                      builder: (context) => PaymentPage(
+                                    //currentrevenue:response2,
+                                    plans: plans,
+                                    onUpdatePlans: (updatedPlans) {
+                                      setState(() {
+                                        plans = updatedPlans;
+                                        });
+                                      },
+                                    ),
+                                  ),
+                                );}
                               },
                               child: Text("View"),
                             ),
@@ -437,6 +464,16 @@ class _HomePageState extends State<HomePage> {
   Future<String> fetchpayments() async {
     var res = await http.get(
       Uri.parse('$SERVER_IP/getpayments'),
+      headers: {
+        'Authorization': json.decode(widget.jwt)["token"],
+        'Content-Type': 'application/json',
+      },
+    );
+    return res.body;
+  }
+  Future<String> fetchuserpayments() async {
+    var res = await http.get(
+      Uri.parse('$SERVER_IP/getuserpayment'),
       headers: {
         'Authorization': json.decode(widget.jwt)["token"],
         'Content-Type': 'application/json',
