@@ -9,6 +9,7 @@ import '../payments/payment.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import '../docs/docs.dart';
 import '../drag.dart';
+import 'dart:math';
 
 class Revenue {
   final int year;
@@ -102,92 +103,79 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ),*/
                   Spacer(),
-                  Padding(
-                    padding: const EdgeInsets.only(right: 16, top: 8),
-                    child: Builder(
-                      builder: (context) {
-                        return GestureDetector(
-                          onLongPress: () {
-                            final RenderBox overlay = Overlay.of(context)
-                                .context
-                                .findRenderObject() as RenderBox;
-                            showMenu(
-                              context: context,
-                              position: RelativeRect.fromLTRB(
-                                overlay.size.width - 30,
-                                0,
-                                overlay.size.width,
-                                overlay.size.height,
-                              ),
-                              items: <PopupMenuEntry<int>>[
-                                const PopupMenuItem<int>(
-                                  value: 0,
-                                  child: Text('MyTheme'),
-                                ),
-                                const PopupMenuItem<int>(
-                                  value: 1,
-                                  child: Text('Logout'),
-                                ),
-                              ],
-                            ).then((int? result) async {
-                              if (result != null) {
-                                switch (result) {
-                                  case 0:
-                                    // Handle "Details" action
-                                    showDialog(
-                                      context: context,
-                                      builder: (context) {
-                                        return AlertDialog(
-                                          title: const Text('Pick a color!'),
-                                          content: SingleChildScrollView(
-                                            child: ColorPicker(
-                                              pickerColor: pickerColor,
-                                              onColorChanged: changeColor,
-                                            ),
-                                          ),
-                                          actions: <Widget>[
-                                            ElevatedButton(
-                                              child: const Text('Got it'),
-                                              onPressed: () {
-                                                storage.write(
-                                                    key: "color",
-                                                    value: pickerColor
-                                                            .toHexString() ??
-                                                        "");
-                                                setState(() =>
-                                                    currentColor = pickerColor);
-                                                Navigator.of(context).pop();
-                                              },
-                                            ),
-                                          ],
-                                        );
-                                      },
-                                    );
-                                    break;
-                                  case 1:
-                                    // Handle "Logout" action
-                                    await storage.delete(key: "jwt");
-                                    Navigator.pushReplacement(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) => LoginPage()),
-                                    );
-                                    break;
-                                }
-                              }
-                            });
-                          },
-                          child: CircleAvatar(
-                            backgroundImage:
-                                AssetImage("assets/images/ic_launcher1.png"),
-                            radius: 25,
-                            backgroundColor: Colors
-                                .black, // Set the background color to black
-                          ),
-                        );
-                      },
-                    ),
-                  ),
+        Padding(
+          padding: const EdgeInsets.only(right: 32, top: 16),
+          child: Builder(
+            builder: (context) {
+              return GestureDetector(
+                onLongPress: () {
+                  final RenderBox overlay = Overlay.of(context)
+                      .context
+                      .findRenderObject() as RenderBox;
+                  final RenderBox avatar = context.findRenderObject() as RenderBox;
+                  final Offset avatarOffset = avatar.localToGlobal(Offset.zero);
+
+                  showDialog(
+                    context: context,
+                    builder: (context) {
+                      return CustomRadialMenu(
+                        center: avatarOffset,
+                        overlaySize: overlay.size,
+                        avatarSize: avatar.size,
+                        onMenuItemSelected: (int value) async {
+                          switch (value) {
+                            case 0:
+                            // Handle "MyTheme" action
+                              showDialog(
+                                context: context,
+                                builder: (context) {
+                                  return AlertDialog(
+                                    title: const Text('Pick a color!'),
+                                    content: SingleChildScrollView(
+                                      child: ColorPicker(
+                                        pickerColor: pickerColor,
+                                        onColorChanged: changeColor,
+                                      ),
+                                    ),
+                                    actions: <Widget>[
+                                      ElevatedButton(
+                                        child: const Text('Got it'),
+                                        onPressed: () {
+                                          storage.write(
+                                              key: "color",
+                                              value: pickerColor.value.toRadixString(16));
+                                          setState(() => currentColor = pickerColor);
+                                          Navigator.of(context).pop();
+                                        },
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+                              break;
+                            case 1:
+                            // Handle "Logout" action
+                              await storage.delete(key: "jwt");
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(builder: (context) => LoginPage()),
+                              );
+                              break;
+                          }
+                        },
+                      );
+                    },
+                  );
+                },
+                child: CircleAvatar(
+                  backgroundImage: AssetImage("assets/images/ic_launcher1.png"),
+                  radius: 25,
+                  backgroundColor: Colors.black,
+                ),
+              );
+            },
+          ),
+        ),
                 ],
               )),
           Center(
@@ -279,7 +267,7 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ),
                       SizedBox(
-                        height: deviceHeight * 0.01 ,
+                        height: deviceHeight * 0.01,
                       ),
                       Container(
                         height: deviceHeight * 0.087,
@@ -605,5 +593,66 @@ class _HomePageState extends State<HomePage> {
       },
     );
     return res.body;
+  }
+}
+
+
+
+class CustomRadialMenu extends StatelessWidget {
+  final Offset center;
+  final Size overlaySize;
+  final Size avatarSize;
+  final Function(int) onMenuItemSelected;
+
+  CustomRadialMenu({
+    required this.center,
+    required this.overlaySize,
+    required this.avatarSize,
+    required this.onMenuItemSelected,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    List<Widget> menuItems = [
+      _buildMenuItem(context, Icons.color_lens, 0),
+      _buildMenuItem(context, Icons.logout, 1),
+    ];
+
+    return Stack(
+      children: List.generate(menuItems.length, (index) {
+        // Limit the angles to 0 to π/2 radians for the top-right quadrant
+        double angle = (( pi / 2 )/ (menuItems.length - 1)) * index;
+        double radius = 200; // Increase this value to make the radius bigger
+        double dx = center.dx + radius * cos(angle) - 60; // Adjust for item radius
+        double dy = center.dy - radius * sin(angle) + 15; // Adjust for item radius
+        print(dx);
+        print(dy);
+        // Ensure the items stay within the screen bounds
+        if (dx < 0) dx = 0;
+        if (dy < 0) dy = 0;
+        if (dx + 50 > overlaySize.width) dx = overlaySize.width - 50;
+        if (dy + 50 > overlaySize.height) dy = overlaySize.height - 50;
+
+        return Positioned(
+          left: dx,
+          top: dy,
+          child: menuItems[index],
+        );
+      }),
+    );
+  }
+
+  Widget _buildMenuItem(BuildContext context, IconData icon, int value) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.of(context).pop();
+        onMenuItemSelected(value);
+      },
+      child: CircleAvatar(
+        child: Icon(icon),
+        radius: 25,
+        backgroundColor: Colors.black54,
+      ),
+    );
   }
 }
