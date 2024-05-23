@@ -20,11 +20,11 @@ void main() {
 }
 
 Future<List<Docs>> fetchAllData() async {
-  var token = await storage.read(key: "jwt") ?? "";
+  String token = await storage.read(key: "jwt") ?? "";
   var res = await http.get(
     Uri.parse('$SERVER_IP/getalldata'),
     headers: {
-      'Authorization': token,
+      'Authorization': json.decode(token)["token"],
       'Content-Type': 'application/json',
     },
   );
@@ -87,14 +87,15 @@ class _ExampleDragAndDropState extends State<ExampleDragAndDrop>
   late List<Customer> _customers = [];
   bool _isLoading = true;
   Future<void> fetchCustomers() async {
+    String token = await storage.read(key: "jwt") ?? "";
     var res = await http.get(
       Uri.parse('$SERVER_IP/getusers_user'),
       headers: {
-        'Authorization': await storage.read(key: "jwt") ?? "",
+        'Authorization': json.decode(token)["token"],
         'Content-Type': 'application/json',
       },
     );
-    print('Response status code: ${res.statusCode}'); // Add this line
+    print('Response status code: ${res.statusCode}${json.decode(token)["token"]}'); // Add this line
     print('Response reason phrase: ${res.reasonPhrase}'); // Add this line
 
     if (res.statusCode == 200) {

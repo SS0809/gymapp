@@ -42,7 +42,7 @@ router.post('/revenuetotal',bearerJwtAuthmustAdmin,revenuetotal);
 //USER
 router.get('/getuser' , bearerJwtAuthmustAdmin , getuser);
 router.get('/getusers' , bearerJwtAuthmustAdmin , getusers);
-router.get('/getusers_user'  , getusers_user);
+router.get('/getusers_user' , bearerJwtAuthmustAdmin , getusers_user);
 
 
 
