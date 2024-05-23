@@ -1,5 +1,15 @@
 import 'package:flutter/material.dart';
+import '../plans/PlanSelection.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import '../plans/plans_edit.dart';
 import '../main.dart';
+import '../Login.dart';
+import '../payments/payment.dart';
+import 'package:flutter_colorpicker/flutter_colorpicker.dart';
+import '../docs/docs.dart';
+import 'dart:math';
+
 void main() {
   runApp(
     const MaterialApp(
@@ -9,26 +19,61 @@ void main() {
   );
 }
 
-const List<Item> _items = [
-  Item(
-    name: 'Spinach Pizza',
-    totalPriceCents: 1299,
-    uid: '1',
-    imageProvider: NetworkImage('https://docs.flutter.dev/cookbook/img-files/effects/split-check/Food1.jpg'),
-  ),
-  Item(
-    name: 'Veggie Delight',
-    totalPriceCents: 799,
-    uid: '2',
-    imageProvider: NetworkImage('https://docs.flutter.dev/cookbook/img-files/effects/split-check/Food2.jpg'),
-  ),
-  Item(
-    name: 'Chicken Parmesan',
-    totalPriceCents: 1499,
-    uid: '3',
-    imageProvider: NetworkImage('https://docs.flutter.dev/cookbook/img-files/effects/split-check/Food3.jpg'),
-  ),
-];
+Future<List<Docs>> fetchAllData() async {
+  var token = await storage.read(key: "jwt") ?? "";
+  var res = await http.get(
+    Uri.parse('$SERVER_IP/getalldata'),
+    headers: {
+      'Authorization': token,
+      'Content-Type': 'application/json',
+    },
+  );
+
+  if (res.statusCode == 200) {
+    List<dynamic> body = json.decode(res.body);
+    List<Docs> docs =
+        body.map((dynamic item) => Docs.fromJson(item)).toList();
+    print(docs);
+    return docs;
+  } else {
+    throw Exception('Failed to load data');
+  }
+}
+
+class Customer {
+  Customer({
+    required this.name,
+    required this.imageProvider,
+    List<Docs>? items,
+  }) : items = items ?? [];
+
+  final String name;
+  final ImageProvider imageProvider;
+  final List<Docs> items;
+/*
+  String get formattedTotalItemPrice {
+    final totalPriceCents =
+        items.fold<int>(0, (prev, item) => prev + item.totalPriceCents);
+    return '\$${(totalPriceCents / 100.0).toStringAsFixed(2)}';
+  }*/
+}
+
+class Item {
+  const Item({
+    required this.totalPriceCents,
+    required this.name,
+    required this.uid,
+    required this.imageProvider,
+  });
+
+  final int totalPriceCents;
+  final String name;
+  final String uid;
+  final ImageProvider imageProvider;
+
+  String get formattedTotalItemPrice =>
+      '\$${(totalPriceCents / 100.0).toStringAsFixed(2)}';
+}
 
 class ExampleDragAndDrop extends StatefulWidget {
   const ExampleDragAndDrop({super.key});
@@ -37,62 +82,52 @@ class ExampleDragAndDrop extends StatefulWidget {
   _ExampleDragAndDropState createState() => _ExampleDragAndDropState();
 }
 
-class _ExampleDragAndDropState extends State<ExampleDragAndDrop> with TickerProviderStateMixin {
-  final List<Customer> _people = [
-    Customer(
-      name: 'Makayla',
-      imageProvider: const NetworkImage('https://docs.flutter.dev/cookbook/img-files/effects/split-check/Avatar1.jpg'),
-    ),
-    Customer(
-      name: 'Nathan',
-      imageProvider: const NetworkImage('https://docs.flutter.dev/cookbook/img-files/effects/split-check/Avatar2.jpg'),
-    ),
-    Customer(
-      name: 'Emilio',
-      imageProvider: const NetworkImage('https://docs.flutter.dev/cookbook/img-files/effects/split-check/Avatar3.jpg'),
-    ),
-    Customer(
-      name: 'Makayla',
-      imageProvider: const NetworkImage('https://docs.flutter.dev/cookbook/img-files/effects/split-check/Avatar1.jpg'),
-    ),
-    Customer(
-      name: 'Nathan',
-      imageProvider: const NetworkImage('https://docs.flutter.dev/cookbook/img-files/effects/split-check/Avatar2.jpg'),
-    ),
-    Customer(
-      name: 'Emilio',
-      imageProvider: const NetworkImage('https://docs.flutter.dev/cookbook/img-files/effects/split-check/Avatar3.jpg'),
-    ),
-    Customer(
-      name: 'Makayla',
-      imageProvider: const NetworkImage('https://docs.flutter.dev/cookbook/img-files/effects/split-check/Avatar1.jpg'),
-    ),
-    Customer(
-      name: 'Nathan',
-      imageProvider: const NetworkImage('https://docs.flutter.dev/cookbook/img-files/effects/split-check/Avatar2.jpg'),
-    ),
-    Customer(
-      name: 'Emilio',
-      imageProvider: const NetworkImage('https://docs.flutter.dev/cookbook/img-files/effects/split-check/Avatar3.jpg'),
-    ),   Customer(
-      name: 'Makayla',
-      imageProvider: const NetworkImage('https://docs.flutter.dev/cookbook/img-files/effects/split-check/Avatar1.jpg'),
-    ),
-    Customer(
-      name: 'Nathan',
-      imageProvider: const NetworkImage('https://docs.flutter.dev/cookbook/img-files/effects/split-check/Avatar2.jpg'),
-    ),
-    Customer(
-      name: 'Emilio',
-      imageProvider: const NetworkImage('https://docs.flutter.dev/cookbook/img-files/effects/split-check/Avatar3.jpg'),
-    ),
+class _ExampleDragAndDropState extends State<ExampleDragAndDrop>
+    with TickerProviderStateMixin {
+  late List<Customer> _customers = [];
+  bool _isLoading = true;
+  Future<void> fetchCustomers() async {
+    var res = await http.get(
+      Uri.parse('$SERVER_IP/getusers_user'),
+      headers: {
+        'Authorization': await storage.read(key: "jwt") ?? "",
+        'Content-Type': 'application/json',
+      },
+    );
+    print('Response status code: ${res.statusCode}'); // Add this line
+    print('Response reason phrase: ${res.reasonPhrase}'); // Add this line
 
-  ];
-
-  void _itemDroppedOnCustomerCart({required Item item, required Customer customer}) {
+    if (res.statusCode == 200) {
+      var data = json.decode(res.body);
+      print(data);
+      _customers = List<Customer>.from(data.map<Customer>((item) {
+        return Customer(
+          name: item['username'],
+          imageProvider: const NetworkImage('https://docs.flutter.dev/cookbook/img-files/effects/split-check/Avatar3.jpg'),
+        );
+      }));
+      setState(() {
+        _isLoading = false;
+      });
+    } else {
+      setState(() {
+        _isLoading = true;
+      });
+      print('Failed to fetch customers');
+    }
+  }
+  late Future<List<Docs>> _fetchDocsFuture; // Declare the future variable
+  void _itemDroppedOnCustomerCart({required Docs item, required Customer customer}) {
     setState(() {
       customer.items.add(item);
     });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchDocsFuture = fetchAllData(); // Initialize the future
+    fetchCustomers();
   }
 
   @override
@@ -126,9 +161,9 @@ class _ExampleDragAndDropState extends State<ExampleDragAndDrop> with TickerProv
       ),
       iconTheme: const IconThemeData(color: Color(0xFF0B585B)),
       title: Text(
-        'Order Food',
+        'Content Distributor',
         style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-          fontSize: 36,
+          fontSize: 24,
           color: const Color(0xFF5C28A9),
           fontWeight: FontWeight.w900,
         ),
@@ -139,30 +174,51 @@ class _ExampleDragAndDropState extends State<ExampleDragAndDrop> with TickerProv
   }
 
   Widget _buildMenuList() {
-    return ListView.separated(
-      padding: const EdgeInsets.all(16),
-      itemCount: _items.length,
-      separatorBuilder: (context, index) => const SizedBox(height: 12),
-      itemBuilder: (context, index) => _buildMenuItem(_items[index]),
-    );
-  }
-
-  Widget _buildMenuItem(Item item) {
-    return LongPressDraggable<Item>(
-      data: item,
-      dragAnchorStrategy: pointerDragAnchorStrategy,
-      feedback: DraggingListItem(photoProvider: item.imageProvider),
-      child: MenuListItem(item: item),
+    return FutureBuilder<List<Docs>>(
+      future: _fetchDocsFuture, // Use the initialized future here
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(child: Text('Error: ${snapshot.error}'));
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return Center(child: Text('No data found'));
+        } else {
+          List<Docs> docs = snapshot.data!;
+          return ListView.builder(
+            itemCount: docs.length,
+            itemBuilder: (context, index) {
+              return LongPressDraggable<Docs>(
+                data: docs[index],
+                dragAnchorStrategy: pointerDragAnchorStrategy,
+                feedback: Image.network(docs[index].secure_url),
+                child: ListTile(
+                  title: Text(docs[index].filename),
+                  subtitle: Text(docs[index].resource_type),
+                  trailing: Image.network(docs[index].secure_url),
+                ),
+              );
+            },
+          );
+        }
+      },
     );
   }
 
   Widget _buildCustomerList() {
-    return SizedBox(
+    return _isLoading
+        ? SizedBox(
+      height: 100,
+      child: Center(child: CircularProgressIndicator()),
+    )
+        : SizedBox(
       height: 100,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
-        itemCount: _people.length,
-        itemBuilder: (context, index) => _buildPersonWithDropZone(_people[index]),
+        itemCount: _customers.length,
+        itemBuilder: (context, index) {
+          return _buildPersonWithDropZone(_customers[index]);
+        },
       ),
     );
   }
@@ -170,7 +226,7 @@ class _ExampleDragAndDropState extends State<ExampleDragAndDrop> with TickerProv
   Widget _buildPersonWithDropZone(Customer customer) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 6),
-      child: DragTarget<Item>(
+      child: DragTarget<Docs>(
         builder: (context, candidateItems, rejectedItems) {
           return CustomerCart(
             customer: customer,
@@ -185,6 +241,7 @@ class _ExampleDragAndDropState extends State<ExampleDragAndDrop> with TickerProv
     );
   }
 }
+
 
 class CustomerCart extends StatelessWidget {
   const CustomerCart({
@@ -226,25 +283,26 @@ class CustomerCart extends StatelessWidget {
               Text(
                 customer.name,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: textColor,
-                  fontWeight: hasItems ? FontWeight.normal : FontWeight.bold,
-                ),
+                      color: textColor,
+                      fontWeight:
+                          hasItems ? FontWeight.normal : FontWeight.bold,
+                    ),
               ),
               if (hasItems) ...[
                 Text(
-                  customer.formattedTotalItemPrice,
+                  customer.name,
                   style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                    color: textColor,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
+                        color: textColor,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
                 ),
                 Text(
                   '${customer.items.length} item${customer.items.length != 1 ? 's' : ''}',
                   style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                    color: textColor,
-                    fontSize: 12,
-                  ),
+                        color: textColor,
+                        fontSize: 12,
+                      ),
                 ),
               ],
             ],
@@ -291,18 +349,16 @@ class MenuListItem extends StatelessWidget {
                 children: [
                   Text(
                     item.name,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(fontSize: 18 ,color: const Color(
-                        0xFFAFAFAF)),
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontSize: 18, color: const Color(0xFFAFAFAF)),
                   ),
                   const SizedBox(height: 10),
                   Text(
                     item.formattedTotalItemPrice,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
-                        color: const Color(
-                            0xFFAFAFAF)
-                    ),
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                        color: const Color(0xFFAFAFAF)),
                   ),
                 ],
               ),
@@ -341,39 +397,5 @@ class DraggingListItem extends StatelessWidget {
         ),
       ),
     );
-  }
-}
-
-@immutable
-class Item {
-  const Item({
-    required this.totalPriceCents,
-    required this.name,
-    required this.uid,
-    required this.imageProvider,
-  });
-
-  final int totalPriceCents;
-  final String name;
-  final String uid;
-  final ImageProvider imageProvider;
-
-  String get formattedTotalItemPrice => '\$${(totalPriceCents / 100.0).toStringAsFixed(2)}';
-}
-
-class Customer {
-  Customer({
-    required this.name,
-    required this.imageProvider,
-    List<Item>? items,
-  }) : items = items ?? [];
-
-  final String name;
-  final ImageProvider imageProvider;
-  final List<Item> items;
-
-  String get formattedTotalItemPrice {
-    final totalPriceCents = items.fold<int>(0, (prev, item) => prev + item.totalPriceCents);
-    return '\$${(totalPriceCents / 100.0).toStringAsFixed(2)}';
   }
 }

@@ -18,6 +18,14 @@ class Docs {
     required this.resource_type,
     required this.secure_url,
   });
+
+  factory Docs.fromJson(Map<String, dynamic> json) {
+    return Docs(
+      filename: json['filename'],
+      resource_type: json['resource_type'],
+      secure_url: json['secure_url'],
+    );
+  }
 }
 
 class MyDocs extends StatefulWidget {
