@@ -4,6 +4,7 @@ import { bearerJwtAuthmustAdmin , bearerJwtAuth }  from '../middleware/cookieJwt
 import { getSuggestions, login, signup, add, data, logout } from '../controllers/index.js';
 import { getPlan , getPlans , createPLan , updatePlan , deletePlan } from '../controllers/plans.js'
 import { getuserpayment , createpayment , getpayments } from "../controllers/payment.js";
+import { getuser , getusers_user , getusers } from "../controllers/user.js";
 import { revenuetotal } from "../controllers/Revenue.js";
 import { uploaddata , getAlldata, deletedata } from "../controllers/content.js";
 //<-----------------------------------ADMIN-------------------------------------->
@@ -38,11 +39,20 @@ router.post('/revenuetotal',bearerJwtAuthmustAdmin,revenuetotal);
     { "year": 2024, "month": 2, "total": 300.00 }
 ]
 */  
+//USER
+router.get('/getuser' , bearerJwtAuthmustAdmin , getuser);
+router.get('/getusers' , bearerJwtAuthmustAdmin , getusers);
+router.get('/getusers_user'  , getusers_user);
+
+
+
+
+
 
 //Content
 router.post('/uploaddata' , bearerJwtAuthmustAdmin , uploaddata);//done
-router.get('/getalldata' , bearerJwtAuthmustAdmin , getAlldata);//done
-router.post('/deletedata'  , deletedata);
+router.get('/getalldata' , bearerJwtAuthmustAdmin ,  getAlldata);//done
+router.post('/deletedata' , bearerJwtAuthmustAdmin , deletedata);
 
 //<-----------------------------------CLIENT------------------------------------->
 router.post('/login', login);
