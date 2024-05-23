@@ -8,6 +8,7 @@ import 'Login.dart';
 import '../payments/payment.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import '../docs/docs.dart';
+import '../drag.dart';
 
 class Revenue {
   final int year;
@@ -102,7 +103,7 @@ class _HomePageState extends State<HomePage> {
                   ),*/
                   Spacer(),
                   Padding(
-                    padding: const EdgeInsets.only(right: 16 ,top: 8),
+                    padding: const EdgeInsets.only(right: 16, top: 8),
                     child: Builder(
                       builder: (context) {
                         return GestureDetector(
@@ -218,7 +219,7 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ),
                       SizedBox(
-                        height: deviceHeight * 0.10,
+                        height: deviceHeight * 0.03,
                       ),
 
                       Container(
@@ -249,8 +250,8 @@ class _HomePageState extends State<HomePage> {
                                 var response = await fetchplans();
                                 print(json.decode(response));
                                 List<Plan> plans =
-                                (json.decode(response) as List<dynamic>)
-                                    .map<Plan>((planData) {
+                                    (json.decode(response) as List<dynamic>)
+                                        .map<Plan>((planData) {
                                   return Plan(
                                     id: planData['_id'],
                                     type: planData['plan_type'],
@@ -278,7 +279,7 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ),
                       SizedBox(
-                        height: deviceHeight * 0.03,
+                        height: deviceHeight * 0.01 ,
                       ),
                       Container(
                         height: deviceHeight * 0.087,
@@ -305,63 +306,66 @@ class _HomePageState extends State<HomePage> {
                             ),
                             ElevatedButton(
                               onPressed: () async {
-                                if(json.decode(widget.jwt)["type"]=="ADMIN"){
-                                DateTime _now = DateTime.now();
-                                var response = await fetchpayments();
-                                var response2 = await fetchtotalrevenue(_now);
-                                print(json.decode(response2));
+                                if (json.decode(widget.jwt)["type"] ==
+                                    "ADMIN") {
+                                  DateTime _now = DateTime.now();
+                                  var response = await fetchpayments();
+                                  var response2 = await fetchtotalrevenue(_now);
+                                  print(json.decode(response2));
 
-                                List<Payment> plans =
-                                (json.decode(response) as List<dynamic>)
-                                    .map<Payment>((planData) {
-                                  return Payment(
-                                    billable_amount:
-                                    planData['billable_amount'],
-                                    month: planData['month'],
-                                    plan: planData['plan'],
-                                    userid: planData['userid'],
-                                  );
-                                }).toList();
-                                Navigator.pushReplacement(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => PaymentPage(
-                                      //currentrevenue:response2,
-                                      plans: plans,
-                                      onUpdatePlans: (updatedPlans) {
-                                        setState(() {
-                                          plans = updatedPlans;
-                                        });
-                                      },
-                                    ),
-                                  ),
-                                );}else {
-                                  var response = await fetchuserpayments();
                                   List<Payment> plans =
-                                  (json.decode(response) as List<dynamic>)
-                                      .map<Payment>((planData) {
+                                      (json.decode(response) as List<dynamic>)
+                                          .map<Payment>((planData) {
                                     return Payment(
                                       billable_amount:
-                                      planData['billable_amount'],
+                                          planData['billable_amount'],
                                       month: planData['month'],
                                       plan: planData['plan'],
                                       userid: planData['userid'],
                                     );
                                   }).toList();
                                   Navigator.pushReplacement(
-                                      context,
-                                      MaterialPageRoute(
+                                    context,
+                                    MaterialPageRoute(
                                       builder: (context) => PaymentPage(
-                                    //currentrevenue:response2,
-                                    plans: plans,
-                                    onUpdatePlans: (updatedPlans) {
-                                      setState(() {
-                                        plans = updatedPlans;
-                                        });
-                                      },
+                                        //currentrevenue:response2,
+                                        plans: plans,
+                                        onUpdatePlans: (updatedPlans) {
+                                          setState(() {
+                                            plans = updatedPlans;
+                                          });
+                                        },
+                                      ),
                                     ),
-                                  ),
-                                );}
+                                  );
+                                } else {
+                                  var response = await fetchuserpayments();
+                                  List<Payment> plans =
+                                      (json.decode(response) as List<dynamic>)
+                                          .map<Payment>((planData) {
+                                    return Payment(
+                                      billable_amount:
+                                          planData['billable_amount'],
+                                      month: planData['month'],
+                                      plan: planData['plan'],
+                                      userid: planData['userid'],
+                                    );
+                                  }).toList();
+                                  Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => PaymentPage(
+                                        //currentrevenue:response2,
+                                        plans: plans,
+                                        onUpdatePlans: (updatedPlans) {
+                                          setState(() {
+                                            plans = updatedPlans;
+                                          });
+                                        },
+                                      ),
+                                    ),
+                                  );
+                                }
                               },
                               child: Text("View"),
                             ),
@@ -369,7 +373,7 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ),
                       SizedBox(
-                        height: deviceHeight * 0.03,
+                        height: deviceHeight * 0.01,
                       ),
                       Container(
                         height: deviceHeight * 0.087,
@@ -392,16 +396,17 @@ class _HomePageState extends State<HomePage> {
                               ),
                             ),
                             SizedBox(
-                              width: deviceWidth * 0.10,
+                              width: deviceWidth * 0.12,
                             ),
                             ElevatedButton(
                               onPressed: () async {
-                                if(json.decode(widget.jwt)["type"]=="ADMIN"){
+                                if (json.decode(widget.jwt)["type"] ==
+                                    "ADMIN") {
                                   var response = await fetchalldata();
                                   print(response);
                                   List<Docs> docs =
-                                  (json.decode(response) as List<dynamic>)
-                                      .map<Docs>((planData) {
+                                      (json.decode(response) as List<dynamic>)
+                                          .map<Docs>((planData) {
                                     return Docs(
                                       filename: planData['filename'],
                                       resource_type: planData['resource_type'],
@@ -412,14 +417,15 @@ class _HomePageState extends State<HomePage> {
                                     context,
                                     MaterialPageRoute(
                                       builder: (context) => MyDocs(
-                                        docs:docs,
-                                      ),//admin
+                                        docs: docs,
+                                      ), //admin
                                     ),
-                                  );}else {
+                                  );
+                                } else {
                                   var response = await fetchalldata();
                                   List<Docs> docs =
-                                  (json.decode(response) as List<dynamic>)
-                                      .map<Docs>((planData) {
+                                      (json.decode(response) as List<dynamic>)
+                                          .map<Docs>((planData) {
                                     return Docs(
                                       filename: planData['filename'],
                                       resource_type: planData['resource_type'],
@@ -430,10 +436,52 @@ class _HomePageState extends State<HomePage> {
                                     context,
                                     MaterialPageRoute(
                                       builder: (context) => MyDocs(
-                                        docs:docs,
-                                      ),//admin
+                                        docs: docs,
+                                      ), //admin
                                     ),
-                                  );}
+                                  );
+                                }
+                              },
+                              child: Text("View"),
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(
+                        height: deviceHeight * 0.01,
+                      ),
+                      Container(
+                        height: deviceHeight * 0.087,
+                        width: deviceWidth * 0.74,
+                        decoration: BoxDecoration(
+                          color: currentColor,
+                          borderRadius: BorderRadius.circular(36),
+                        ),
+                        child: Row(
+                          children: [
+                            SizedBox(
+                              width: deviceWidth * 0.1,
+                            ),
+                            Text(
+                              "DragDrop",
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.white,
+                              ),
+                            ),
+                            SizedBox(
+                              width: deviceWidth * 0.10,
+                            ),
+                            ElevatedButton(
+                              onPressed: () {
+                                Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        ExampleDragAndDrop(), //admin
+                                  ),
+                                );
                               },
                               child: Text("View"),
                             ),
@@ -510,6 +558,7 @@ class _HomePageState extends State<HomePage> {
     );
     return res.body;
   }
+
   Future<String> fetchalldata() async {
     var res = await http.get(
       Uri.parse('$SERVER_IP/getalldata'),
@@ -520,6 +569,7 @@ class _HomePageState extends State<HomePage> {
     );
     return res.body;
   }
+
   Future<String> fetchuserpayments() async {
     var res = await http.get(
       Uri.parse('$SERVER_IP/getuserpayment'),
