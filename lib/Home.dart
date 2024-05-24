@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:gym_app/User/users_edit.dart';
 import '../plans/PlanSelection.dart';
+import '../User/userselection.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../plans/plans_edit.dart';
@@ -71,7 +73,7 @@ class _HomePageState extends State<HomePage> {
   late double deviceWidth;
   // create some values
   Color pickerColor = Color(0xFF741BA0);
-  late Color currentColor ;
+  late Color currentColor;
 
 // ValueChanged<Color> callback
   void changeColor(Color color) {
@@ -81,7 +83,7 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-  currentColor = Color(0xFF00875F); // Initialize currentColor here
+    currentColor = Color(0xFF00875F); // Initialize currentColor here
     _initAsync();
   }
 
@@ -94,6 +96,7 @@ class _HomePageState extends State<HomePage> {
       });
     }
   }
+
   @override
   Widget build(BuildContext context) {
     deviceHeight = MediaQuery.of(context).size.height;
@@ -119,79 +122,88 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ),*/
                   Spacer(),
-        Padding(
-          padding: const EdgeInsets.only(right: 32, top: 16),
-          child: Builder(
-            builder: (context) {
-              return GestureDetector(
-                onLongPress: () {
-                  final RenderBox overlay = Overlay.of(context)
-                      .context
-                      .findRenderObject() as RenderBox;
-                  final RenderBox avatar = context.findRenderObject() as RenderBox;
-                  final Offset avatarOffset = avatar.localToGlobal(Offset.zero);
+                  Padding(
+                    padding: const EdgeInsets.only(right: 32, top: 16),
+                    child: Builder(
+                      builder: (context) {
+                        return GestureDetector(
+                          onLongPress: () {
+                            final RenderBox overlay = Overlay.of(context)
+                                .context
+                                .findRenderObject() as RenderBox;
+                            final RenderBox avatar =
+                                context.findRenderObject() as RenderBox;
+                            final Offset avatarOffset =
+                                avatar.localToGlobal(Offset.zero);
 
-                  showDialog(
-                    context: context,
-                    builder: (context) {
-                      return CustomRadialMenu(
-                        center: avatarOffset,
-                        overlaySize: overlay.size,
-                        avatarSize: avatar.size,
-                        onMenuItemSelected: (int value) async {
-                          switch (value) {
-                            case 0:
-                            // Handle "MyTheme" action
-                              showDialog(
-                                context: context,
-                                builder: (context) {
-                                  return AlertDialog(
-                                    title: const Text('Pick a color!'),
-                                    content: SingleChildScrollView(
-                                      child: ColorPicker(
-                                        pickerColor: pickerColor,
-                                        onColorChanged: changeColor,
-                                      ),
-                                    ),
-                                    actions: <Widget>[
-                                      ElevatedButton(
-                                        child: const Text('Got it'),
-                                        onPressed: () {
-                                          storage.write(
-                                              key: "color",
-                                              value: pickerColor.value.toRadixString(16));
-                                          setState(() => currentColor = pickerColor);
-                                          Navigator.of(context).pop();
-                                        },
-                                      ),
-                                    ],
-                                  );
-                                },
-                              );
-                              break;
-                            case 1:
-                            // Handle "Logout" action
-                              await storage.delete(key: "jwt");
-                              Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(builder: (context) => LoginPage()),
-                              );
-                              break;
-                          }
-                        },
-                      );
-                    },
-                  );
-                },
-                child: CircleAvatar(
-                  backgroundImage: AssetImage("assets/images/ic_launcher1.png"),
-                  radius: 25,
-                  backgroundColor: Colors.black,
-                ),
-              );
-            },
-          ),
-        ),
+                            showDialog(
+                              context: context,
+                              builder: (context) {
+                                return CustomRadialMenu(
+                                  center: avatarOffset,
+                                  overlaySize: overlay.size,
+                                  avatarSize: avatar.size,
+                                  onMenuItemSelected: (int value) async {
+                                    switch (value) {
+                                      case 0:
+                                        // Handle "MyTheme" action
+                                        showDialog(
+                                          context: context,
+                                          builder: (context) {
+                                            return AlertDialog(
+                                              title:
+                                                  const Text('Pick a color!'),
+                                              content: SingleChildScrollView(
+                                                child: ColorPicker(
+                                                  pickerColor: pickerColor,
+                                                  onColorChanged: changeColor,
+                                                ),
+                                              ),
+                                              actions: <Widget>[
+                                                ElevatedButton(
+                                                  child: const Text('Got it'),
+                                                  onPressed: () {
+                                                    storage.write(
+                                                        key: "color",
+                                                        value: pickerColor.value
+                                                            .toRadixString(16));
+                                                    setState(() =>
+                                                        currentColor =
+                                                            pickerColor);
+                                                    Navigator.of(context).pop();
+                                                  },
+                                                ),
+                                              ],
+                                            );
+                                          },
+                                        );
+                                        break;
+                                      case 1:
+                                        // Handle "Logout" action
+                                        await storage.delete(key: "jwt");
+                                        Navigator.pushReplacement(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  LoginPage()),
+                                        );
+                                        break;
+                                    }
+                                  },
+                                );
+                              },
+                            );
+                          },
+                          child: CircleAvatar(
+                            backgroundImage:
+                                AssetImage("assets/images/ic_launcher1.png"),
+                            radius: 25,
+                            backgroundColor: Colors.black,
+                          ),
+                        );
+                      },
+                    ),
+                  ),
                 ],
               )),
           Center(
@@ -519,7 +531,32 @@ class _HomePageState extends State<HomePage> {
                               width: deviceWidth * 0.20,
                             ),
                             ElevatedButton(
-                              onPressed: () {
+                              onPressed: () async {
+                                var response = await fetchusers();
+                                print(json.decode(response));
+                                List<User> users =
+                                    (json.decode(response) as List<dynamic>)
+                                        .map<User>((planData) {
+                                  return User(
+                                    id: planData['_id'],
+                                    password: planData['password'],
+                                    username: planData['username'],
+                                    type: planData['type'],
+                                  );
+                                }).toList();
+                                Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => UserSelectionPage(
+                                      users: users,
+                                      onUpdateUsers: (onUpdateUsers) {
+                                        setState(() {
+                                          users = onUpdateUsers;
+                                        });
+                                      },
+                                    ),
+                                  ),
+                                );
                               },
                               child: Text("View"),
                             ),
@@ -578,6 +615,17 @@ class _HomePageState extends State<HomePage> {
   Future<String> fetchplans() async {
     var res = await http.get(
       Uri.parse('$SERVER_IP/getplans'),
+      headers: {
+        'Authorization': json.decode(widget.jwt)["token"],
+        'Content-Type': 'application/json',
+      },
+    );
+    return res.body;
+  }
+
+  Future<String> fetchusers() async {
+    var res = await http.get(
+      Uri.parse('$SERVER_IP/getusers_user'),
       headers: {
         'Authorization': json.decode(widget.jwt)["token"],
         'Content-Type': 'application/json',
@@ -646,8 +694,6 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
-
-
 class CustomRadialMenu extends StatelessWidget {
   final Offset center;
   final Size overlaySize;
@@ -671,10 +717,12 @@ class CustomRadialMenu extends StatelessWidget {
     return Stack(
       children: List.generate(menuItems.length, (index) {
         // Limit the angles to 0 to π/2 radians for the top-right quadrant
-        double angle = (( pi / 2 )/ (menuItems.length - 1)) * index;
+        double angle = ((pi / 2) / (menuItems.length - 1)) * index;
         double radius = 200; // Increase this value to make the radius bigger
-        double dx = center.dx + radius * cos(angle) - 60; // Adjust for item radius
-        double dy = center.dy - radius * sin(angle) + 15; // Adjust for item radius
+        double dx =
+            center.dx + radius * cos(angle) - 60; // Adjust for item radius
+        double dy =
+            center.dy - radius * sin(angle) + 15; // Adjust for item radius
         print(dx);
         print(dy);
         // Ensure the items stay within the screen bounds

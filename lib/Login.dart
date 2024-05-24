@@ -126,6 +126,7 @@ class _LoginPageState extends State<LoginPage> {
 
                   if (jwt != null) {
                     storage.write(key: "jwt", value: jwt ?? "");
+                    storage.write(key: "type", value: _selectedUserRole);
                     Navigator.push(
                         context,
                         MaterialPageRoute(

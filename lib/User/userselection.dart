@@ -1,24 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:gym_app/Home.dart';
 import 'package:gym_app/main.dart';
-import 'package:gym_app/plans/plans_edit.dart';
+import 'package:gym_app/User/users_edit.dart';
 import 'package:gym_app/Login.dart';
 import 'dart:convert'; // Import to decode JWT
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-class PlanSelectionPage extends StatefulWidget {
-  late List<Plan> plans;
-  final Function(List<Plan>) onUpdatePlans;
-  PlanSelectionPage({
-    required this.plans,
-    required this.onUpdatePlans,
+class UserSelectionPage extends StatefulWidget {
+  late List<User> users;
+  final Function(List<User>) onUpdateUsers;
+  UserSelectionPage({
+    required this.users,
+    required this.onUpdateUsers,
   });
 
   @override
-  State<PlanSelectionPage> createState() => _PlanSelectionPageState();
+  State<UserSelectionPage> createState() => _UserSelectionPageState();
 }
 
-class _PlanSelectionPageState extends State<PlanSelectionPage> {
+class _UserSelectionPageState extends State<UserSelectionPage> {
   late double deviceHeight;
   late double deviceWidth;
   String? jwt , typeuser;
@@ -53,7 +53,7 @@ class _PlanSelectionPageState extends State<PlanSelectionPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Featured Plans'),
+        title: Text('Featured Users'),
         backgroundColor: Color(0xFF1A1A1A),
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
@@ -84,7 +84,7 @@ class _PlanSelectionPageState extends State<PlanSelectionPage> {
               Expanded(
                 child: ListView.builder(
                   shrinkWrap: true,
-                  itemCount: widget.plans.length,
+                  itemCount: widget.users.length,
                   itemBuilder: (BuildContext context, int index) {
                     return Column(
                       children: [
@@ -97,7 +97,7 @@ class _PlanSelectionPageState extends State<PlanSelectionPage> {
                           ),
                           child: Center(
                             child: Text(
-                              widget.plans[index].type,
+                              widget.users[index].username,
                               style: TextStyle(
                                 fontSize: 30,
                                 fontWeight: FontWeight.bold,
@@ -130,11 +130,11 @@ class _PlanSelectionPageState extends State<PlanSelectionPage> {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
-              builder: (context) => EditPlansPage(
-                plans: widget.plans,
-                onUpdatePlans: (updatedPlans) {
+              builder: (context) => EditUsersPage(
+                users: widget.users,
+                onUpdateUsers: (updatedUsers) {
                   setState(() {
-                    widget.onUpdatePlans(updatedPlans);
+                    widget.onUpdateUsers(updatedUsers);
                   });
                 },
               ),

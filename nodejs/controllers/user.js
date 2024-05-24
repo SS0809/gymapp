@@ -58,7 +58,24 @@ const createuser = async (req, res) => {
 
 const updateuser =  async (req, res) => {
 
-        return res.status(200).json(plan);
+    const { user_type, user_user, user_password , id } = req.body;
+    if (!user_type || !user_user || !user_password || !id) {
+        return res.status(400).json({ msg: 'Please provide all required fields' });
+    }
+    try {
+        const user = await User.findById(id);
+        if (!user) {
+            return res.status(404).json({ msg: 'user not found' });
+        }
+        user.user_type = user_type;
+        user.user_user = user_user;
+        user.user_password = user_password;
+        await user.save();
+        return res.status(200).json(user);
+    } catch (err) {
+        console.error('Internal Error:', err);
+        return res.status(500).json({ msg: 'Internal Server Error' });
+    }
 };
 
 const deleteuser =  async (req, res) => {   
