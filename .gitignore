@@ -39,3 +39,6 @@ app.*.map.json
 
 # Android Studio will place build artifacts here
 /android/
+pubspec.lock
+node_modules
+package-lock.json

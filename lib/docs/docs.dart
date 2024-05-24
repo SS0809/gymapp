@@ -4,6 +4,8 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:gym_app/Home.dart';
+import 'package:gym_app/main.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:gym_app/docs/pdf_screen.dart';
@@ -130,8 +132,6 @@ class _MyAppState extends State<MyDocs> {
     return completer.future;
   }
 
-
-
   Future<File> fromAsset(String asset, String filename) async {
     // To open from assets, you can copy them to the app storage folder, and then access them "locally"
     Completer<File> completer = Completer();
@@ -154,10 +154,33 @@ class _MyAppState extends State<MyDocs> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter PDF View',
+      theme: ThemeData.dark(),
       debugShowCheckedModeBanner: false,
       home: Scaffold(
-        appBar: AppBar(title: const Text('Plugin example app')),
+        appBar: AppBar(
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back_ios_new),
+            onPressed: () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => MyApp(),
+                ),
+              );
+            },
+          ),
+          iconTheme: const IconThemeData(color: Color(0xFF0B585B)),
+          title: Text(
+            'Content Distributor',
+            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                  fontSize: 24,
+                  color: const Color(0xFF5C28A9),
+                  fontWeight: FontWeight.w900,
+                ),
+          ),
+       //   backgroundColor: const Color(0xFF0E0D0D),
+          elevation: 0,
+        ),
         body: Center(child: Builder(
           builder: (BuildContext context) {
             return Column(
@@ -174,7 +197,8 @@ class _MyAppState extends State<MyDocs> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => PDFScreen(path: remotePDFpath),
+                                builder: (context) =>
+                                    PDFScreen(path: remotePDFpath),
                               ),
                             );
                           });
@@ -208,6 +232,14 @@ class _MyAppState extends State<MyDocs> {
                       );
                     }
                   },
+                ),
+                TextButton(
+                  child: Text("Remove File"),
+                  onPressed: () {},
+                ),
+                TextButton(
+                  child: Text("Add File"),
+                  onPressed: () {},
                 ),
               ],
             );

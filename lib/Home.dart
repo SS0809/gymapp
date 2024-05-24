@@ -71,13 +71,29 @@ class _HomePageState extends State<HomePage> {
   late double deviceWidth;
   // create some values
   Color pickerColor = Color(0xFF741BA0);
-  Color currentColor = Color(0xFF00875F);
+  late Color currentColor ;
 
 // ValueChanged<Color> callback
   void changeColor(Color color) {
     setState(() => pickerColor = color);
   }
 
+  @override
+  void initState() {
+    super.initState();
+  currentColor = Color(0xFF00875F); // Initialize currentColor here
+    _initAsync();
+  }
+
+  Future<void> _initAsync() async {
+    String colorValue = await storage.read(key: 'color') as String;
+    if (colorValue != null && colorValue.isNotEmpty && colorValue.length == 8) {
+      setState(() {
+        currentColor = Color(int.parse(colorValue, radix: 16));
+        pickerColor = currentColor;
+      });
+    }
+  }
   @override
   Widget build(BuildContext context) {
     deviceHeight = MediaQuery.of(context).size.height;
@@ -470,6 +486,40 @@ class _HomePageState extends State<HomePage> {
                                         ExampleDragAndDrop(), //admin
                                   ),
                                 );
+                              },
+                              child: Text("View"),
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(
+                        height: deviceHeight * 0.01,
+                      ),
+                      Container(
+                        height: deviceHeight * 0.087,
+                        width: deviceWidth * 0.74,
+                        decoration: BoxDecoration(
+                          color: currentColor,
+                          borderRadius: BorderRadius.circular(36),
+                        ),
+                        child: Row(
+                          children: [
+                            SizedBox(
+                              width: deviceWidth * 0.1,
+                            ),
+                            Text(
+                              "Users",
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.white,
+                              ),
+                            ),
+                            SizedBox(
+                              width: deviceWidth * 0.20,
+                            ),
+                            ElevatedButton(
+                              onPressed: () {
                               },
                               child: Text("View"),
                             ),
