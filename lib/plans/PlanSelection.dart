@@ -119,7 +119,7 @@ class _PlanSelectionPageState extends State<PlanSelectionPage> {
           ),
         ),
       ),
-      floatingActionButton: jwt != null && json.decode(jwt!)["type"] == 'USER'
+      floatingActionButton: jwt != null && json.decode(jwt!)["type"] == 'ADMIN'
           ? FloatingActionButton(
         elevation: 0.0,
         child: Icon(Icons.edit),

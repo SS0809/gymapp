@@ -4,7 +4,7 @@ import { bearerJwtAuthmustAdmin , bearerJwtAuth }  from '../middleware/cookieJwt
 import { getSuggestions, login, signup, add, data, logout } from '../controllers/index.js';
 import { getPlan , getPlans , createPLan , updatePlan , deletePlan } from '../controllers/plans.js'
 import { getuserpayment , createpayment , getpayments } from "../controllers/payment.js";
-import { getuser , getusers_user , getusers } from "../controllers/user.js";
+import  {  getuser , getusers_user , getusers , createuser , updateuser , deleteuser } from "../controllers/user.js";
 import { revenuetotal } from "../controllers/Revenue.js";
 import { uploaddata , getAlldata, deletedata } from "../controllers/content.js";
 //<-----------------------------------ADMIN-------------------------------------->
@@ -40,10 +40,12 @@ router.post('/revenuetotal',bearerJwtAuthmustAdmin,revenuetotal);
 ]
 */  
 //USER
-router.get('/getuser' , bearerJwtAuthmustAdmin , getuser);
-router.get('/getusers' , bearerJwtAuthmustAdmin , getusers);
-router.get('/getusers_user' , bearerJwtAuthmustAdmin , getusers_user);
-
+router.get('/getuser' , bearerJwtAuthmustAdmin , getuser);//done
+router.get('/getusers' , bearerJwtAuthmustAdmin , getusers);//done
+router.get('/getusers_user' , bearerJwtAuthmustAdmin , getusers_user);// done
+router.post('/updateuser' , bearerJwtAuthmustAdmin , updateuser);
+router.post('/deleteuser' , bearerJwtAuthmustAdmin , deleteuser);//done
+router.post('/createuser' , bearerJwtAuthmustAdmin , createuser);// done {creates type user only}
 
 
 
