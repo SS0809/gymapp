@@ -71,25 +71,8 @@ Access the Application
 
 Open your web browser and go to http://localhost:3000 to view the application.
 
-# Project Structure
-bash
-Copy code
-zym/
-├── client/               # Dart client-side code
-│   ├── lib/              # Dart libraries
-│   ├── pubspec.yaml      # Dart dependencies
-│   └── ...               # Other Dart client files
-├── server/               # Express server-side code
-│   ├── models/           # Mongoose models
-│   ├── routes/           # Express routes
-│   ├── app.js            # Express app setup
-│   ├── package.json      # Node.js dependencies
-│   └── ...               # Other Express server files
-├── .gitignore            # Git ignore file
-├── README.md             # Readme file
-└── ...                   # Other project files 
 
-# Contributions are Always welcome,Feel free to reach <saurabh45215@gmail.com>
+ Contributions are Always welcome,Feel free to reach <saurabh45215@gmail.com>
 
 
 # Fork the Project
