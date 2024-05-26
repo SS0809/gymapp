@@ -12,6 +12,10 @@ const Users=mongoose.Schema({
             type:String, 
             required: true,
         }, 
+        items: {
+             type: Array,
+             default: []
+        },
 }); 
 const User=mongoose.model("users",Users); 
 export default User; 

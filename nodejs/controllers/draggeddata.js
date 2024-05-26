@@ -1,13 +1,32 @@
+import User from "../modals/usermodal.js";
+
 const draggeddata = async (req, res) => {
-    const data = req.body;
-    const parsedData = JSON.parse(data.data);
-    const jsonData = parsedData.map(item => {
-        return {
+    try {
+        const data = req.body;
+        const parsedData = JSON.parse(data.data);
+        const jsonData = parsedData.map(item => ({
             user: item.user,
-            items: JSON.stringify(item.items) 
-        };
-    });
-    console.log(jsonData);
+            items: JSON.stringify(item.items)
+        }));
+        console.log(jsonData);
+        for (const item of jsonData) {
+            const { user, items } = item;
+            await User.updateOne(
+                { username: user }, 
+                { $set: { dataitems: items } }, 
+                { upsert: true } 
+            );
+        }
+        res.status(200).json("ok");
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Server error." });
+    }
+};
+
+export { draggeddata };
+
+
     /*
     [
       { user: 'tanu', items: '[{"filename":"mypdf","resource_type":"image"}]' },
@@ -19,7 +38,3 @@ const draggeddata = async (req, res) => {
       { user: 'nishant', items: '[]' }
     ]
     */
-    res.status(200).send(jsonData); 
-};
-
-export { draggeddata };

@@ -20,6 +20,24 @@ import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:gym_app/docs/pdf_screen.dart';
 
+
+class Dataitem {
+  String filename;
+  String resource_type;
+
+  Dataitem({
+    required this.filename,
+    required this.resource_type,
+  });
+
+  factory Dataitem.fromJson(Map<String,dynamic> json) {
+    return Dataitem(
+      filename: json['filename'],
+      resource_type: json['resource_type'],
+    );
+  }
+}
+
 void main() {
   runApp(
     const MaterialApp(
@@ -53,11 +71,13 @@ Future<List<Docs>> fetchAllData() async {
 class Customer {
   Customer({
     required this.name,
+    required this.dataitems,
     required this.imageProvider,
     List<Docs>? items,
   }) : items = items ?? [];
 
   final String name;
+  final List<Dataitem> dataitems;
   final ImageProvider imageProvider;
   final List<Docs> items;
 }
@@ -93,37 +113,43 @@ class _ExampleDragAndDropState extends State<ExampleDragAndDrop>
   String remotePDFpath = "";
   late Future<List<Docs>> _fetchDocsFuture; // Declare the future variable
 
-  Future<void> fetchCustomers() async {
-    String token = await storage.read(key: "jwt") ?? "";
-    var res = await http.get(
-      Uri.parse('$SERVER_IP/getusers_user'),
-      headers: {
-        'Authorization': json.decode(token)["token"],
-        'Content-Type': 'application/json',
-      },
-    );
-    print('Response status code: ${res.statusCode}${json.decode(token)["token"]}'); // Add this line
-    print('Response reason phrase: ${res.reasonPhrase}'); // Add this line
+Future<void> fetchCustomers() async {
+  String token = await storage.read(key: "jwt") ?? "";
+  var res = await http.get(
+    Uri.parse('$SERVER_IP/getusers_user'),
+    headers: {
+      'Authorization': json.decode(token)["token"],
+      'Content-Type': 'application/json',
+    },
+  );
 
-    if (res.statusCode == 200) {
-      var data = json.decode(res.body);
-      print(data);
-      _customers = List<Customer>.from(data.map<Customer>((item) {
-        return Customer(
-          name: item['username'],
-          imageProvider: const NetworkImage('https://docs.flutter.dev/cookbook/img-files/effects/split-check/Avatar3.jpg'),
-        );
-      }));
-      setState(() {
-        _isLoading = false;
-      });
-    } else {
-      setState(() {
-        _isLoading = true;
-      });
-      print('Failed to fetch customers');
-    }
+  if (res.statusCode == 200) {
+    var data = json.decode(res.body);
+    _customers = List<Customer>.from(data.map<Customer>((item) {
+      print(item['dataitems'][0]); // [{"filename":"myname","resource_type":"image"}]//string
+      List<Map<String, dynamic>> dataList = List<Map<String, dynamic>>.from(json.decode(item['dataitems'][0]));
+      List<Dataitem> dataitems = dataList.map((dataitem) => Dataitem.fromJson(dataitem)).toList();
+      // Print each Dataitem instance in the dataitems list
+      for (var dataitem in dataitems) {
+        print('Filename: ${dataitem.filename}, Resource Type: ${dataitem.resource_type}');
+      }
+      return Customer(
+        name: item['username'],
+        dataitems: dataitems, // Assign parsed data directly
+        imageProvider: const NetworkImage('https://docs.flutter.dev/cookbook/img-files/effects/split-check/Avatar3.jpg'),
+      );
+    }));
+    print(_customers[0].dataitems.map((dataitem) => 'Filename: ${dataitem.filename}, Resource Type: ${dataitem.resource_type}').toList());
+    setState(() {
+      _isLoading = false;
+    });
+  } else {
+    setState(() {
+      _isLoading = true;
+    });
+    print('Failed to fetch customers');
   }
+}
 
   void _itemDroppedOnCustomerCart({required Docs item, required Customer customer}) {
     setState(() {
@@ -400,11 +426,19 @@ class _ExampleDragAndDropState extends State<ExampleDragAndDrop>
           );
         },
         onAcceptWithDetails: (details) {
-          _itemDroppedOnCustomerCart(item: details.data, customer: customer);
+          // Check if the dropped item already exists in both dataitems and items lists
+          bool alreadyExistsInDataItems = customer.dataitems.any((dataitem) => dataitem.filename == details.data.filename);
+          bool alreadyExistsInItems = customer.items.any((item) => item.filename == details.data.filename);
+
+          // If the item doesn't already exist in both lists, add it to the items list
+          if (!alreadyExistsInDataItems && !alreadyExistsInItems) {
+            _itemDroppedOnCustomerCart(item: details.data, customer: customer);
+          }
         },
       ),
     );
   }
+
 }
 
 class CustomerCart extends StatelessWidget {
@@ -451,12 +485,12 @@ class CustomerCart extends StatelessWidget {
                   fontWeight: hasItems ? FontWeight.normal : FontWeight.bold,
                 ),
               ),
-              // TODO api request to post items list to the server  on floating button pressed
               if (hasItems)
-                ...customer.items.map((item) => Padding(
+                ...customer.items
+                    .map((item) => Padding(
                   padding: const EdgeInsets.only(top: 4),
                   child: Text(
-                    item.filename.toString(),
+                    item.filename,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: textColor,
                       fontSize: 18,
@@ -464,11 +498,22 @@ class CustomerCart extends StatelessWidget {
                     ),
                   ),
                 )),
-              if (hasItems)
+              ...customer.dataitems
+                  .map((dataitem) => Padding(
+                padding: const EdgeInsets.only(top: 4),
+                child: Text(
+                  dataitem.filename,
+                  style: Theme.of(context).textTheme.bodyText1?.copyWith(
+                    color: textColor,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              )),
                 Padding(
                   padding: const EdgeInsets.only(top: 4),
                   child: Text(
-                    '${customer.items.length} item${customer.items.length != 1 ? 's' : ''}',
+                    '${customer.items.length + customer.dataitems.length} item${customer.items.length+customer.dataitems.length != 1 ? 's' : ''}',
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       color: textColor,
                       fontSize: 10,
