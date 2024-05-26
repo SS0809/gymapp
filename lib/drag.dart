@@ -219,6 +219,33 @@ class _ExampleDragAndDropState extends State<ExampleDragAndDrop>
     _fetchDocsFuture = fetchAllData(); // Initialize the future
     fetchCustomers();
   }
+  Future<void> postItemsListToServer(List<Docs> itemsList) async {
+    List<Map<String, dynamic>> itemsData = itemsList.map((item) {
+      return {
+        'filename': item.filename,
+        'resource_type': item.resource_type,
+      };
+    }).toList();
+    try {
+      String token = await storage.read(key: "jwt") ?? "";
+      var res = await http.post(
+        Uri.parse('$SERVER_IP/post_items_list'),
+        headers: {
+          'Authorization': json.decode(token)["token"],
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(itemsData),
+      );
+
+      if (res.statusCode == 200) {
+        print('Items list posted successfully');
+      } else {
+        print('Failed to post items list');
+      }
+    } catch (e) {
+      print('Error posting items list: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -306,24 +333,43 @@ class _ExampleDragAndDropState extends State<ExampleDragAndDrop>
     );
   }
 
+
   Widget _buildCustomerList() {
     return _isLoading
         ? SizedBox(
       height: 100,
       child: Center(child: CircularProgressIndicator()),
     )
-        : SizedBox(
-      height: 400,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        shrinkWrap: true,
-        itemCount: _customers.length,
-        itemBuilder: (context, index) {
-          return _buildPersonWithDropZone(_customers[index]);
-        },
-      ),
+        : Stack(
+      children: [
+        SizedBox(
+          height: 400,
+          width: double.infinity,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            shrinkWrap: true,
+            itemCount: _customers.length,
+            itemBuilder: (context, index) {
+              return _buildPersonWithDropZone(_customers[index]);
+            },
+          ),
+        ),
+        Positioned(
+          right: 0,
+          bottom: 0,
+          child: FloatingActionButton(
+            onPressed: () {
+              List<Docs> itemsList =
+              _customers.expand((customer) => customer.items).toList();
+              postItemsListToServer(itemsList);
+            },
+            child: Icon(Icons.cloud_upload_sharp),
+          ),
+        ),
+      ],
     );
   }
+
 
   Widget _buildPersonWithDropZone(Customer customer) {
     return Padding(
@@ -388,6 +434,7 @@ class CustomerCart extends StatelessWidget {
                   fontWeight: hasItems ? FontWeight.normal : FontWeight.bold,
                 ),
               ),
+              // TODO api request to post items list to the server  on floating button pressed
               if (hasItems)
                 ...customer.items.map((item) => Padding(
                   padding: const EdgeInsets.only(top: 4),

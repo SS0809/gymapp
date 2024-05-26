@@ -1,2 +1,0 @@
-floating button on edit { user and plan } not working 
-make then async
