@@ -219,24 +219,24 @@ class _ExampleDragAndDropState extends State<ExampleDragAndDrop>
     _fetchDocsFuture = fetchAllData(); // Initialize the future
     fetchCustomers();
   }
-  Future<void> postItemsListToServer(List<Docs> itemsList) async {
-    List<Map<String, dynamic>> itemsData = itemsList.map((item) {
-      return {
-        'filename': item.filename,
-        'resource_type': item.resource_type,
-      };
-    }).toList();
+  Future<void> postItemsListToServer(List<Map<String, dynamic>> customerItemsList) async {
+    print(customerItemsList); // Print the data to verify it's correct before sending
     try {
       String token = await storage.read(key: "jwt") ?? "";
       var res = await http.post(
-        Uri.parse('$SERVER_IP/post_items_list'),
+        Uri.parse('$SERVER_IP/draggeddata'),
         headers: {
           'Authorization': json.decode(token)["token"],
-          'Content-Type': 'application/json',
         },
-        body: jsonEncode(itemsData),
+        body: {
+        'data':  jsonEncode
+            (customerItemsList),
+        }
       );
+/*
+[{customerName: tanu, items: [{filename: myname, resource_type: image}]}, {customerName: anshika, items: [{filename: myname, resource_type: image}]}, {customerName: nishant, items: []}, {customerName: tanu, items: []}, {customerName: tanu, items: []}, {customerName: anshika, items: []}, {customerName: nishant, items: []}]
 
+ */
       if (res.statusCode == 200) {
         print('Items list posted successfully');
       } else {
@@ -246,6 +246,7 @@ class _ExampleDragAndDropState extends State<ExampleDragAndDrop>
       print('Error posting items list: $e');
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -359,9 +360,25 @@ class _ExampleDragAndDropState extends State<ExampleDragAndDrop>
           bottom: 0,
           child: FloatingActionButton(
             onPressed: () {
-              List<Docs> itemsList =
-              _customers.expand((customer) => customer.items).toList();
-              postItemsListToServer(itemsList);
+              List<Map<String, dynamic>> customerItemsList = _customers.map((customer) {
+                return {
+                  'user': customer.name,
+                  'items': customer.items.map((item) {
+                    return {
+                      'filename': item.filename,
+                      'resource_type': item.resource_type,
+                    };
+                  }).toList(),
+                };
+              }).toList();
+
+              postItemsListToServer(customerItemsList);
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => MyApp(),
+                ),
+              );
             },
             child: Icon(Icons.cloud_upload_sharp),
           ),
