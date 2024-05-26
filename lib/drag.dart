@@ -42,7 +42,7 @@ Future<List<Docs>> fetchAllData() async {
   if (res.statusCode == 200) {
     List<dynamic> body = json.decode(res.body);
     List<Docs> docs =
-        body.map((dynamic item) => Docs.fromJson(item)).toList();
+    body.map((dynamic item) => Docs.fromJson(item)).toList();
     print(docs);
     return docs;
   } else {
@@ -60,12 +60,6 @@ class Customer {
   final String name;
   final ImageProvider imageProvider;
   final List<Docs> items;
-/*
-  String get formattedTotalItemPrice {
-    final totalPriceCents =
-        items.fold<int>(0, (prev, item) => prev + item.totalPriceCents);
-    return '\$${(totalPriceCents / 100.0).toStringAsFixed(2)}';
-  }*/
 }
 
 class Item {
@@ -97,6 +91,8 @@ class _ExampleDragAndDropState extends State<ExampleDragAndDrop>
   late List<Customer> _customers = [];
   bool _isLoading = true;
   String remotePDFpath = "";
+  late Future<List<Docs>> _fetchDocsFuture; // Declare the future variable
+
   Future<void> fetchCustomers() async {
     String token = await storage.read(key: "jwt") ?? "";
     var res = await http.get(
@@ -128,12 +124,19 @@ class _ExampleDragAndDropState extends State<ExampleDragAndDrop>
       print('Failed to fetch customers');
     }
   }
-  late Future<List<Docs>> _fetchDocsFuture; // Declare the future variable
+
   void _itemDroppedOnCustomerCart({required Docs item, required Customer customer}) {
     setState(() {
-      customer.items.add(item);
+      if (!_doesCustomerHaveItem(customer, item)) {
+        customer.items.add(item);
+      }
     });
   }
+
+  bool _doesCustomerHaveItem(Customer customer, Docs item) {
+    return customer.items.any((existingItem) => existingItem.filename == item.filename);
+  }
+
   Future<void> requestStoragePermission() async {
     PermissionStatus status = await Permission.storage.status;
     if (!status.isGranted) {
@@ -143,6 +146,7 @@ class _ExampleDragAndDropState extends State<ExampleDragAndDrop>
       }
     }
   }
+
   Future<File> createFileOfPdfUrl(String url) async {
     await requestStoragePermission();
     Completer<File> completer = Completer();
@@ -208,6 +212,7 @@ class _ExampleDragAndDropState extends State<ExampleDragAndDrop>
 
     return completer.future;
   }
+
   @override
   void initState() {
     super.initState();
@@ -223,7 +228,7 @@ class _ExampleDragAndDropState extends State<ExampleDragAndDrop>
       body: SafeArea(
         child: Column(
           children: [
-            Expanded(flex: 5, child: _buildMenuList()),
+            Expanded(flex: 4, child: _buildMenuList()),
             _buildCustomerList(),
           ],
         ),
@@ -276,7 +281,7 @@ class _ExampleDragAndDropState extends State<ExampleDragAndDrop>
               return LongPressDraggable<Docs>(
                 data: docs[index],
                 dragAnchorStrategy: pointerDragAnchorStrategy,
-                feedback: Image.network(docs[index].secure_url),
+                feedback: Text(docs[index].filename),// Image.network(docs[index].secure_url),
                 child: ListTile(
                   onTap: () {
                     createFileOfPdfUrl(docs[index].secure_url)
@@ -308,9 +313,10 @@ class _ExampleDragAndDropState extends State<ExampleDragAndDrop>
       child: Center(child: CircularProgressIndicator()),
     )
         : SizedBox(
-      height: 100,
+      height: 400,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
+        shrinkWrap: true,
         itemCount: _customers.length,
         itemBuilder: (context, index) {
           return _buildPersonWithDropZone(_customers[index]);
@@ -338,7 +344,6 @@ class _ExampleDragAndDropState extends State<ExampleDragAndDrop>
   }
 }
 
-
 class CustomerCart extends StatelessWidget {
   const CustomerCart({
     super.key,
@@ -362,14 +367,14 @@ class CustomerCart extends StatelessWidget {
         borderRadius: BorderRadius.circular(22),
         color: const Color(0xFF121618),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 12),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               ClipOval(
                 child: SizedBox(
-                  width: 38,
-                  height: 38,
+                  width: 58,
+                  height: 58,
                   child: Image(
                     image: customer.imageProvider,
                     fit: BoxFit.cover,
@@ -379,28 +384,33 @@ class CustomerCart extends StatelessWidget {
               Text(
                 customer.name,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: textColor,
-                      fontWeight:
-                          hasItems ? FontWeight.normal : FontWeight.bold,
-                    ),
+                  color: textColor,
+                  fontWeight: hasItems ? FontWeight.normal : FontWeight.bold,
+                ),
               ),
-              if (hasItems) ...[
-                Text(
-                  customer.name,
-                  style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                        color: textColor,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
+              if (hasItems)
+                ...customer.items.map((item) => Padding(
+                  padding: const EdgeInsets.only(top: 4),
+                  child: Text(
+                    item.filename.toString(),
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: textColor,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                )),
+              if (hasItems)
+                Padding(
+                  padding: const EdgeInsets.only(top: 4),
+                  child: Text(
+                    '${customer.items.length} item${customer.items.length != 1 ? 's' : ''}',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      color: textColor,
+                      fontSize: 10,
+                    ),
+                  ),
                 ),
-                Text(
-                  '${customer.items.length} item${customer.items.length != 1 ? 's' : ''}',
-                  style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                        color: textColor,
-                        fontSize: 12,
-                      ),
-                ),
-              ],
             ],
           ),
         ),
