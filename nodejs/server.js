@@ -11,7 +11,7 @@ import Connection from './connection/connection.js';
 const PORT = 8080; 
 import { config as dotenvConfig } from 'dotenv';
 dotenvConfig();
-const DB_URL = 'mongodb+srv://user1:wqffE82CrOewXIIh@cluster0.fcjxhuf.mongodb.net/BLEAN?retryWrites=true&w=majority';
+const DB_URL = 'mongodb+srv://user1:wqffE82CrOewXIIh@cluster0.fcjxhuf.mongodb.net/BLEAN';
 app.use(cors());
 Connection(DB_URL);
 app.use(

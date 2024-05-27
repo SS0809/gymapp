@@ -126,8 +126,8 @@ Future<void> fetchCustomers() async {
   if (res.statusCode == 200) {
     var data = json.decode(res.body);
     _customers = List<Customer>.from(data.map<Customer>((item) {
-      print(item['dataitems'][0]); // [{"filename":"myname","resource_type":"image"}]//string
-      List<Map<String, dynamic>> dataList = List<Map<String, dynamic>>.from(json.decode(item['dataitems'][0]));
+      print(item['dataitems']); // [{"filename":"myname","resource_type":"image"}]//string
+      List<Map<String, dynamic>> dataList = List<Map<String, dynamic>>.from(json.decode(item['dataitems']));
       List<Dataitem> dataitems = dataList.map((dataitem) => Dataitem.fromJson(dataitem)).toList();
       // Print each Dataitem instance in the dataitems list
       for (var dataitem in dataitems) {
@@ -389,17 +389,26 @@ Future<void> fetchCustomers() async {
               List<Map<String, dynamic>> customerItemsList = _customers.map((customer) {
                 return {
                   'user': customer.name,
-                  'items': customer.items.map((item) {
-                    return {
-                      'filename': item.filename,
-                      'resource_type': item.resource_type,
-                    };
-                  }).toList(),
+                  'items': [
+                    ...customer.items.map((item) {
+                      return {
+                        'filename': item.filename,
+                        'resource_type': item.resource_type,
+                      };
+                    }),
+                    ...customer.dataitems.map((item) {
+                      return {
+                        'filename': item.filename,
+                        'resource_type': item.resource_type,
+                      };
+                    })
+                  ],
                 };
               }).toList();
 
               postItemsListToServer(customerItemsList);
-              Navigator.pushReplacement(
+              // TODO : and ok successfull prompt and add 1 sec delay
+              Navigator.pop(
                 context,
                 MaterialPageRoute(
                   builder: (context) => MyApp(),
@@ -485,6 +494,7 @@ class CustomerCart extends StatelessWidget {
                   fontWeight: hasItems ? FontWeight.normal : FontWeight.bold,
                 ),
               ),
+              //TODO: add screen to edit the specific data
               if (hasItems)
                 ...customer.items
                     .map((item) => Padding(
