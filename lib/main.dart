@@ -8,8 +8,8 @@ import '../plans/plans_edit.dart';
 import '../plans/PlanSelection.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-const SERVER_IP = 'https://tahr-eminent-exactly.ngrok-free.app';
-//const SERVER_IP = 'http://ec2-54-89-201-209.compute-1.amazonaws.com:82';
+//const SERVER_IP = 'https://tahr-eminent-exactly.ngrok-free.app';
+const SERVER_IP = 'http://ec2-54-89-201-209.compute-1.amazonaws.com:8080';
 
 final storage = FlutterSecureStorage();
 

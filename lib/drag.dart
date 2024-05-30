@@ -20,6 +20,24 @@ import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:gym_app/docs/pdf_screen.dart';
 
+
+class Dataitem {
+  String filename;
+  String resource_type;
+
+  Dataitem({
+    required this.filename,
+    required this.resource_type,
+  });
+
+  factory Dataitem.fromJson(Map<String,dynamic> json) {
+    return Dataitem(
+      filename: json['filename'],
+      resource_type: json['resource_type'],
+    );
+  }
+}
+
 void main() {
   runApp(
     const MaterialApp(
@@ -42,7 +60,7 @@ Future<List<Docs>> fetchAllData() async {
   if (res.statusCode == 200) {
     List<dynamic> body = json.decode(res.body);
     List<Docs> docs =
-        body.map((dynamic item) => Docs.fromJson(item)).toList();
+    body.map((dynamic item) => Docs.fromJson(item)).toList();
     print(docs);
     return docs;
   } else {
@@ -53,19 +71,15 @@ Future<List<Docs>> fetchAllData() async {
 class Customer {
   Customer({
     required this.name,
+    required this.dataitems,
     required this.imageProvider,
     List<Docs>? items,
   }) : items = items ?? [];
 
   final String name;
+  final List<Dataitem> dataitems;
   final ImageProvider imageProvider;
   final List<Docs> items;
-/*
-  String get formattedTotalItemPrice {
-    final totalPriceCents =
-        items.fold<int>(0, (prev, item) => prev + item.totalPriceCents);
-    return '\$${(totalPriceCents / 100.0).toStringAsFixed(2)}';
-  }*/
 }
 
 class Item {
@@ -97,43 +111,58 @@ class _ExampleDragAndDropState extends State<ExampleDragAndDrop>
   late List<Customer> _customers = [];
   bool _isLoading = true;
   String remotePDFpath = "";
-  Future<void> fetchCustomers() async {
-    String token = await storage.read(key: "jwt") ?? "";
-    var res = await http.get(
-      Uri.parse('$SERVER_IP/getusers_user'),
-      headers: {
-        'Authorization': json.decode(token)["token"],
-        'Content-Type': 'application/json',
-      },
-    );
-    print('Response status code: ${res.statusCode}${json.decode(token)["token"]}'); // Add this line
-    print('Response reason phrase: ${res.reasonPhrase}'); // Add this line
-
-    if (res.statusCode == 200) {
-      var data = json.decode(res.body);
-      print(data);
-      _customers = List<Customer>.from(data.map<Customer>((item) {
-        return Customer(
-          name: item['username'],
-          imageProvider: const NetworkImage('https://docs.flutter.dev/cookbook/img-files/effects/split-check/Avatar3.jpg'),
-        );
-      }));
-      setState(() {
-        _isLoading = false;
-      });
-    } else {
-      setState(() {
-        _isLoading = true;
-      });
-      print('Failed to fetch customers');
-    }
-  }
   late Future<List<Docs>> _fetchDocsFuture; // Declare the future variable
+
+Future<void> fetchCustomers() async {
+  String token = await storage.read(key: "jwt") ?? "";
+  var res = await http.get(
+    Uri.parse('$SERVER_IP/getusers_user'),
+    headers: {
+      'Authorization': json.decode(token)["token"],
+      'Content-Type': 'application/json',
+    },
+  );
+
+  if (res.statusCode == 200) {
+    var data = json.decode(res.body);
+    _customers = List<Customer>.from(data.map<Customer>((item) {
+      print(item['dataitems']); // [{"filename":"myname","resource_type":"image"}]//string
+      List<Map<String, dynamic>> dataList = List<Map<String, dynamic>>.from(json.decode(item['dataitems']));
+      List<Dataitem> dataitems = dataList.map((dataitem) => Dataitem.fromJson(dataitem)).toList();
+      // Print each Dataitem instance in the dataitems list
+      for (var dataitem in dataitems) {
+        print('Filename: ${dataitem.filename}, Resource Type: ${dataitem.resource_type}');
+      }
+      return Customer(
+        name: item['username'],
+        dataitems: dataitems, // Assign parsed data directly
+        imageProvider: const NetworkImage('https://docs.flutter.dev/cookbook/img-files/effects/split-check/Avatar3.jpg'),
+      );
+    }));
+    print(_customers[0].dataitems.map((dataitem) => 'Filename: ${dataitem.filename}, Resource Type: ${dataitem.resource_type}').toList());
+    setState(() {
+      _isLoading = false;
+    });
+  } else {
+    setState(() {
+      _isLoading = true;
+    });
+    print('Failed to fetch customers');
+  }
+}
+
   void _itemDroppedOnCustomerCart({required Docs item, required Customer customer}) {
     setState(() {
-      customer.items.add(item);
+      if (!_doesCustomerHaveItem(customer, item)) {
+        customer.items.add(item);
+      }
     });
   }
+
+  bool _doesCustomerHaveItem(Customer customer, Docs item) {
+    return customer.items.any((existingItem) => existingItem.filename == item.filename);
+  }
+
   Future<void> requestStoragePermission() async {
     PermissionStatus status = await Permission.storage.status;
     if (!status.isGranted) {
@@ -143,6 +172,7 @@ class _ExampleDragAndDropState extends State<ExampleDragAndDrop>
       }
     }
   }
+
   Future<File> createFileOfPdfUrl(String url) async {
     await requestStoragePermission();
     Completer<File> completer = Completer();
@@ -208,12 +238,41 @@ class _ExampleDragAndDropState extends State<ExampleDragAndDrop>
 
     return completer.future;
   }
+
   @override
   void initState() {
     super.initState();
     _fetchDocsFuture = fetchAllData(); // Initialize the future
     fetchCustomers();
   }
+  Future<void> postItemsListToServer(List<Map<String, dynamic>> customerItemsList) async {
+    print(customerItemsList); // Print the data to verify it's correct before sending
+    try {
+      String token = await storage.read(key: "jwt") ?? "";
+      var res = await http.post(
+        Uri.parse('$SERVER_IP/draggeddata'),
+        headers: {
+          'Authorization': json.decode(token)["token"],
+        },
+        body: {
+        'data':  jsonEncode
+            (customerItemsList),
+        }
+      );
+/*
+[{customerName: tanu, items: [{filename: myname, resource_type: image}]}, {customerName: anshika, items: [{filename: myname, resource_type: image}]}, {customerName: nishant, items: []}, {customerName: tanu, items: []}, {customerName: tanu, items: []}, {customerName: anshika, items: []}, {customerName: nishant, items: []}]
+
+ */
+      if (res.statusCode == 200) {
+        print('Items list posted successfully');
+      } else {
+        print('Failed to post items list');
+      }
+    } catch (e) {
+      print('Error posting items list: $e');
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -223,7 +282,7 @@ class _ExampleDragAndDropState extends State<ExampleDragAndDrop>
       body: SafeArea(
         child: Column(
           children: [
-            Expanded(flex: 5, child: _buildMenuList()),
+            Expanded(flex: 4, child: _buildMenuList()),
             _buildCustomerList(),
           ],
         ),
@@ -276,7 +335,7 @@ class _ExampleDragAndDropState extends State<ExampleDragAndDrop>
               return LongPressDraggable<Docs>(
                 data: docs[index],
                 dragAnchorStrategy: pointerDragAnchorStrategy,
-                feedback: Image.network(docs[index].secure_url),
+                feedback: Text(docs[index].filename),// Image.network(docs[index].secure_url),
                 child: ListTile(
                   onTap: () {
                     createFileOfPdfUrl(docs[index].secure_url)
@@ -301,23 +360,68 @@ class _ExampleDragAndDropState extends State<ExampleDragAndDrop>
     );
   }
 
+
   Widget _buildCustomerList() {
     return _isLoading
         ? SizedBox(
       height: 100,
       child: Center(child: CircularProgressIndicator()),
     )
-        : SizedBox(
-      height: 100,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: _customers.length,
-        itemBuilder: (context, index) {
-          return _buildPersonWithDropZone(_customers[index]);
-        },
-      ),
+        : Stack(
+      children: [
+        SizedBox(
+          height: 400,
+          width: double.infinity,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            shrinkWrap: true,
+            itemCount: _customers.length,
+            itemBuilder: (context, index) {
+              return _buildPersonWithDropZone(_customers[index]);
+            },
+          ),
+        ),
+        Positioned(
+          right: 0,
+          bottom: 0,
+          child: FloatingActionButton(
+            onPressed: () {
+              List<Map<String, dynamic>> customerItemsList = _customers.map((customer) {
+                return {
+                  'user': customer.name,
+                  'items': [
+                    ...customer.items.map((item) {
+                      return {
+                        'filename': item.filename,
+                        'resource_type': item.resource_type,
+                      };
+                    }),
+                    ...customer.dataitems.map((item) {
+                      return {
+                        'filename': item.filename,
+                        'resource_type': item.resource_type,
+                      };
+                    })
+                  ],
+                };
+              }).toList();
+
+              postItemsListToServer(customerItemsList);
+              // TODO : and ok successfull prompt and add 1 sec delay
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => MyApp(),
+                ),
+              );
+            },
+            child: Icon(Icons.cloud_upload_sharp),
+          ),
+        ),
+      ],
     );
   }
+
 
   Widget _buildPersonWithDropZone(Customer customer) {
     return Padding(
@@ -331,13 +435,20 @@ class _ExampleDragAndDropState extends State<ExampleDragAndDrop>
           );
         },
         onAcceptWithDetails: (details) {
-          _itemDroppedOnCustomerCart(item: details.data, customer: customer);
+          // Check if the dropped item already exists in both dataitems and items lists
+          bool alreadyExistsInDataItems = customer.dataitems.any((dataitem) => dataitem.filename == details.data.filename);
+          bool alreadyExistsInItems = customer.items.any((item) => item.filename == details.data.filename);
+
+          // If the item doesn't already exist in both lists, add it to the items list
+          if (!alreadyExistsInDataItems && !alreadyExistsInItems) {
+            _itemDroppedOnCustomerCart(item: details.data, customer: customer);
+          }
         },
       ),
     );
   }
-}
 
+}
 
 class CustomerCart extends StatelessWidget {
   const CustomerCart({
@@ -362,14 +473,14 @@ class CustomerCart extends StatelessWidget {
         borderRadius: BorderRadius.circular(22),
         color: const Color(0xFF121618),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 12),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               ClipOval(
                 child: SizedBox(
-                  width: 38,
-                  height: 38,
+                  width: 58,
+                  height: 58,
                   child: Image(
                     image: customer.imageProvider,
                     fit: BoxFit.cover,
@@ -379,28 +490,53 @@ class CustomerCart extends StatelessWidget {
               Text(
                 customer.name,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: textColor,
-                      fontWeight:
-                          hasItems ? FontWeight.normal : FontWeight.bold,
-                    ),
+                  color: textColor,
+                  fontWeight: hasItems ? FontWeight.normal : FontWeight.bold,
+                ),
               ),
-              if (hasItems) ...[
-                Text(
-                  customer.name,
-                  style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                        color: textColor,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
+              ElevatedButton(onPressed: (){}, child:               Text(
+                "Edit",
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  color: textColor,
+                  fontWeight: hasItems ? FontWeight.normal : FontWeight.bold,
                 ),
-                Text(
-                  '${customer.items.length} item${customer.items.length != 1 ? 's' : ''}',
-                  style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                        color: textColor,
-                        fontSize: 12,
-                      ),
+              ),),
+              //TODO: add screen to edit the specific data
+              if (hasItems)
+                ...customer.items
+                    .map((item) => Padding(
+                  padding: const EdgeInsets.only(top: 4),
+                  child: Text(
+                    item.filename,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: textColor,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                )),
+              ...customer.dataitems
+                  .map((dataitem) => Padding(
+                padding: const EdgeInsets.only(top: 4),
+                child: Text(
+                  dataitem.filename,
+                  style: Theme.of(context).textTheme.bodyText1?.copyWith(
+                    color: textColor,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-              ],
+              )),
+                Padding(
+                  padding: const EdgeInsets.only(top: 4),
+                  child: Text(
+                    '${customer.items.length + customer.dataitems.length} item${customer.items.length+customer.dataitems.length != 1 ? 's' : ''}',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      color: textColor,
+                      fontSize: 10,
+                    ),
+                  ),
+                ),
             ],
           ),
         ),

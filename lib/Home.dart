@@ -62,20 +62,24 @@ class HomePage extends StatefulWidget {
   _HomePageState createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
-  /* List<Plan> plans = [
-    Plan(name: 'Plan 1', age: '20'),
-    Plan(name: 'Plan 2', age: '25'),
-    Plan(name: 'Plan 3', age: '30'),
-  ];
-*/
+class _HomePageState extends State<HomePage>
+    with SingleTickerProviderStateMixin {
   late double deviceHeight;
   late double deviceWidth;
-  // create some values
   Color pickerColor = Color(0xFF741BA0);
   late Color currentColor;
+  late AnimationController _controller;
 
-// ValueChanged<Color> callback
+  Future<void> _initAsync() async {
+    String? colorValue = await storage.read(key: 'color');
+    if (colorValue != null && colorValue.isNotEmpty && colorValue.length == 8) {
+      setState(() {
+        currentColor = Color(int.parse(colorValue, radix: 16));
+        pickerColor = currentColor;
+      });
+    }
+  }
+
   void changeColor(Color color) {
     setState(() => pickerColor = color);
   }
@@ -83,18 +87,110 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    currentColor = Color(0xFF00875F); // Initialize currentColor here
+    currentColor = Color(0xFF00875F);
     _initAsync();
+    _controller = AnimationController(
+      duration: const Duration(seconds: 2),
+      vsync: this,
+    );
   }
 
-  Future<void> _initAsync() async {
-    String colorValue = await storage.read(key: 'color') as String;
-    if (colorValue != null && colorValue.isNotEmpty && colorValue.length == 8) {
-      setState(() {
-        currentColor = Color(int.parse(colorValue, radix: 16));
-        pickerColor = currentColor;
-      });
-    }
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  Future<String> fetchData() async {
+    var res = await http.get(
+      Uri.parse('$SERVER_IP/data'),
+      headers: {
+        'Authorization': json.decode(widget.jwt)["token"],
+        'Content-Type': 'application/json',
+      },
+    );
+    return res.body;
+  }
+
+  Future<String> fetchplans() async {
+    var res = await http.get(
+      Uri.parse('$SERVER_IP/getplans'),
+      headers: {
+        'Authorization': json.decode(widget.jwt)["token"],
+        'Content-Type': 'application/json',
+      },
+    );
+    return res.body;
+  }
+
+  Future<String> fetchusers() async {
+    var res = await http.get(
+      Uri.parse('$SERVER_IP/getusers_user'),
+      headers: {
+        'Authorization': json.decode(widget.jwt)["token"],
+        'Content-Type': 'application/json',
+      },
+    );
+    return res.body;
+  }
+
+  Future<String> fetchpayments() async {
+    var res = await http.get(
+      Uri.parse('$SERVER_IP/getpayments'),
+      headers: {
+        'Authorization': json.decode(widget.jwt)["token"],
+        'Content-Type': 'application/json',
+      },
+    );
+    return res.body;
+  }
+
+  Future<String> fetchalldata() async {
+    var res = await http.get(
+      Uri.parse('$SERVER_IP/getalldata'),
+      headers: {
+        'Authorization': json.decode(widget.jwt)["token"],
+        'Content-Type': 'application/json',
+      },
+    );
+    return res.body;
+  }
+
+  Future<String> fetchuserpayments() async {
+    var res = await http.get(
+      Uri.parse('$SERVER_IP/getuserpayment'),
+      headers: {
+        'Authorization': json.decode(widget.jwt)["token"],
+        'Content-Type': 'application/json',
+      },
+    );
+    return res.body;
+  }
+
+  Future<String> fetchtotalrevenue(DateTime _now) async {
+    var res = await http.post(Uri.parse('$SERVER_IP/revenuetotal'), headers: {
+      'Authorization': json.decode(widget.jwt)["token"],
+    }, body: {
+      'year': _now.year.toString(),
+      'month': _now.month.toString()
+    });
+    return res.body;
+  }
+
+  Future<String> deleteplan(int idd) async {
+    var res = await http.post(
+      Uri.parse('$SERVER_IP/deleteplan'),
+      headers: {
+        'Authorization': json.decode(widget.jwt)["token"],
+        'Content-Type': 'application/json',
+      },
+      body: {
+        json.encode({
+          'id': idd,
+        })
+      },
+    );
+    return res.body;
   }
 
   @override
@@ -106,106 +202,115 @@ class _HomePageState extends State<HomePage> {
       body: Stack(
         children: [
           Positioned(
-              top: 40,
-              left: 10,
-              right: 10,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  /* IconButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    icon: Icon(
-                      Icons.arrow_back,
-                      size: 30,
-                    ),
-                  ),*/
-                  Spacer(),
-                  Padding(
-                    padding: const EdgeInsets.only(right: 32, top: 16),
-                    child: Builder(
-                      builder: (context) {
-                        return GestureDetector(
-                          onLongPress: () {
-                            final RenderBox overlay = Overlay.of(context)
-                                .context
-                                .findRenderObject() as RenderBox;
-                            final RenderBox avatar =
-                                context.findRenderObject() as RenderBox;
-                            final Offset avatarOffset =
-                                avatar.localToGlobal(Offset.zero);
+            top: 40,
+            left: 10,
+            right: 10,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Spacer(),
+                Padding(
+                  padding: const EdgeInsets.only(right: 32, top: 16),
+                  child: Builder(
+                    builder: (context) {
+                      return GestureDetector(
+                        onLongPress: () {
+                          final RenderBox overlay = Overlay.of(context)
+                              .context
+                              .findRenderObject() as RenderBox;
+                          final RenderBox avatar =
+                              context.findRenderObject() as RenderBox;
+                          final Offset avatarOffset =
+                              avatar.localToGlobal(Offset.zero);
 
-                            showDialog(
-                              context: context,
-                              builder: (context) {
-                                return CustomRadialMenu(
-                                  center: avatarOffset,
-                                  overlaySize: overlay.size,
-                                  avatarSize: avatar.size,
-                                  onMenuItemSelected: (int value) async {
-                                    switch (value) {
-                                      case 0:
-                                        // Handle "MyTheme" action
-                                        showDialog(
-                                          context: context,
-                                          builder: (context) {
-                                            return AlertDialog(
-                                              title:
-                                                  const Text('Pick a color!'),
-                                              content: SingleChildScrollView(
-                                                child: ColorPicker(
-                                                  pickerColor: pickerColor,
-                                                  onColorChanged: changeColor,
-                                                ),
+                          showDialog(
+                            context: context,
+                            builder: (context) {
+                              return CustomRadialMenu(
+                                center: avatarOffset,
+                                overlaySize: overlay.size,
+                                avatarSize: avatar.size,
+                                onMenuItemSelected: (int value) async {
+                                  switch (value) {
+                                    case 0:
+                                      showDialog(
+                                        context: context,
+                                        builder: (context) {
+                                          return AlertDialog(
+                                            title: const Text('Pick a color!'),
+                                            content: SingleChildScrollView(
+                                              child: ColorPicker(
+                                                pickerColor: pickerColor,
+                                                onColorChanged: changeColor,
                                               ),
-                                              actions: <Widget>[
-                                                ElevatedButton(
-                                                  child: const Text('Got it'),
-                                                  onPressed: () {
-                                                    storage.write(
-                                                        key: "color",
-                                                        value: pickerColor.value
-                                                            .toRadixString(16));
-                                                    setState(() =>
-                                                        currentColor =
-                                                            pickerColor);
-                                                    Navigator.of(context).pop();
-                                                  },
-                                                ),
-                                              ],
-                                            );
-                                          },
-                                        );
-                                        break;
-                                      case 1:
-                                        // Handle "Logout" action
-                                        await storage.delete(key: "jwt");
-                                        Navigator.pushReplacement(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (context) =>
-                                                  LoginPage()),
-                                        );
-                                        break;
-                                    }
-                                  },
-                                );
-                              },
+                                            ),
+                                            actions: <Widget>[
+                                              ElevatedButton(
+                                                child: const Text('Got it'),
+                                                onPressed: () {
+                                                  storage.write(
+                                                      key: "color",
+                                                      value: pickerColor.value
+                                                          .toRadixString(16));
+                                                  setState(() => currentColor =
+                                                      pickerColor);
+                                                  Navigator.of(context).pop();
+                                                },
+                                              ),
+                                            ],
+                                          );
+                                        },
+                                      );
+                                      break;
+                                    case 1:
+                                      await storage.delete(key: "jwt");
+                                      Navigator.pushReplacement(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) => LoginPage()),
+                                      );
+                                      break;
+                                  }
+                                },
+                              );
+                            },
+                          );
+                        },
+                        onDoubleTap: () {
+                          _controller.forward(from: 0);
+                        },
+                        child: AnimatedBuilder(
+                          animation: _controller,
+                          builder: (context, child) {
+                            return Transform.rotate(
+                              angle: _controller.value * 8 * pi,
+                              child: Container(
+                                padding: EdgeInsets.all(4), // Border width
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  gradient: LinearGradient(
+                                    colors: [Colors.deepPurpleAccent, Colors.pinkAccent],
+                                  ),
+                                ),
+                                child:  Transform.rotate(
+                                angle: -_controller.value * 8 * pi,
+                                child: CircleAvatar(
+                                  backgroundImage:
+                                  AssetImage("assets/images/ic_launcher1.png"),
+                                  radius: 25,
+                                  backgroundColor: Colors.black,
+                                ),
+                              ),),
                             );
                           },
-                          child: CircleAvatar(
-                            backgroundImage:
-                                AssetImage("assets/images/ic_launcher1.png"),
-                            radius: 25,
-                            backgroundColor: Colors.black,
-                          ),
-                        );
-                      },
-                    ),
+                        ),
+                      );
+                    },
                   ),
-                ],
-              )),
+                ),
+              ],
+            ),
+          ),
           Center(
             child: FutureBuilder(
               future: fetchData(),
@@ -228,7 +333,7 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ),
                       Text(
-                        "WELCOME!", //${widget.payload['username']},",
+                        "WELCOME!",
                         style: TextStyle(
                           fontSize: 28,
                           fontWeight: FontWeight.w600,
@@ -237,7 +342,6 @@ class _HomePageState extends State<HomePage> {
                       SizedBox(
                         height: deviceHeight * 0.03,
                       ),
-
                       Container(
                         height: deviceHeight * 0.087,
                         width: deviceWidth * 0.74,
@@ -318,7 +422,7 @@ class _HomePageState extends State<HomePage> {
                               ),
                             ),
                             SizedBox(
-                              width: deviceWidth * 0.10,
+                              width: deviceWidth * 0.1,
                             ),
                             ElevatedButton(
                               onPressed: () async {
@@ -600,98 +704,6 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
-
-  Future<String> fetchData() async {
-    var res = await http.get(
-      Uri.parse('$SERVER_IP/data'),
-      headers: {
-        'Authorization': json.decode(widget.jwt)["token"],
-        'Content-Type': 'application/json',
-      },
-    );
-    return res.body;
-  }
-
-  Future<String> fetchplans() async {
-    var res = await http.get(
-      Uri.parse('$SERVER_IP/getplans'),
-      headers: {
-        'Authorization': json.decode(widget.jwt)["token"],
-        'Content-Type': 'application/json',
-      },
-    );
-    return res.body;
-  }
-
-  Future<String> fetchusers() async {
-    var res = await http.get(
-      Uri.parse('$SERVER_IP/getusers_user'),
-      headers: {
-        'Authorization': json.decode(widget.jwt)["token"],
-        'Content-Type': 'application/json',
-      },
-    );
-    return res.body;
-  }
-
-  Future<String> fetchpayments() async {
-    var res = await http.get(
-      Uri.parse('$SERVER_IP/getpayments'),
-      headers: {
-        'Authorization': json.decode(widget.jwt)["token"],
-        'Content-Type': 'application/json',
-      },
-    );
-    return res.body;
-  }
-
-  Future<String> fetchalldata() async {
-    var res = await http.get(
-      Uri.parse('$SERVER_IP/getalldata'),
-      headers: {
-        'Authorization': json.decode(widget.jwt)["token"],
-        'Content-Type': 'application/json',
-      },
-    );
-    return res.body;
-  }
-
-  Future<String> fetchuserpayments() async {
-    var res = await http.get(
-      Uri.parse('$SERVER_IP/getuserpayment'),
-      headers: {
-        'Authorization': json.decode(widget.jwt)["token"],
-        'Content-Type': 'application/json',
-      },
-    );
-    return res.body;
-  }
-
-  Future<String> fetchtotalrevenue(DateTime _now) async {
-    var res = await http.post(Uri.parse('$SERVER_IP/revenuetotal'), headers: {
-      'Authorization': json.decode(widget.jwt)["token"],
-    }, body: {
-      'year': _now.year.toString(),
-      'month': _now.month.toString()
-    });
-    return res.body;
-  }
-
-  Future<String> deleteplan(int idd) async {
-    var res = await http.post(
-      Uri.parse('$SERVER_IP/deleteplan'),
-      headers: {
-        'Authorization': json.decode(widget.jwt)["token"],
-        'Content-Type': 'application/json',
-      },
-      body: {
-        json.encode({
-          'id': idd,
-        })
-      },
-    );
-    return res.body;
-  }
 }
 
 class CustomRadialMenu extends StatelessWidget {
@@ -754,3 +766,4 @@ class CustomRadialMenu extends StatelessWidget {
     );
   }
 }
+// TODO rebuild the buttons

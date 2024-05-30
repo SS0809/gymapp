@@ -6,8 +6,13 @@ import { getPlan , getPlans , createPLan , updatePlan , deletePlan } from '../co
 import { getuserpayment , createpayment , getpayments } from "../controllers/payment.js";
 import  {  getuser , getusers_user , getusers , createuser , updateuser , deleteuser } from "../controllers/user.js";
 import { revenuetotal } from "../controllers/Revenue.js";
+<<<<<<< HEAD
 import { uploaddata , getAlldata, deletedata } from "../controllers/content.js"; 
 import {adsuser} from '../controllers/Dragdrop.mjs';
+=======
+import { uploaddata , getAlldata, deletedata } from "../controllers/content.js";
+import { draggeddata } from "../controllers/draggeddata.js"
+>>>>>>> fc01ac02b84b40cb7e45f9ff9731e8fc0846b9d4
 //<-----------------------------------ADMIN-------------------------------------->
 router.post('/login', login);
 router.post('/logout', logout);
@@ -52,10 +57,12 @@ router.post('/createuser' , bearerJwtAuthmustAdmin , createuser);// done {create
 
 
 
-//Content
+//Content cloud data
 router.post('/uploaddata' , bearerJwtAuthmustAdmin , uploaddata);//done
 router.get('/getalldata' , bearerJwtAuthmustAdmin ,  getAlldata);//done
 router.post('/deletedata' , bearerJwtAuthmustAdmin , deletedata);
+
+router.post('/draggeddata',bearerJwtAuthmustAdmin , draggeddata );
 
 //<-----------------------------------CLIENT------------------------------------->
 router.post('/login', login);

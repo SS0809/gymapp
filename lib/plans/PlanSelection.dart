@@ -21,7 +21,7 @@ class PlanSelectionPage extends StatefulWidget {
 class _PlanSelectionPageState extends State<PlanSelectionPage> {
   late double deviceHeight;
   late double deviceWidth;
-  String? jwt , typeuser;
+  String? jwt, typeuser;
   Color? currentColor;
 
   final storage = FlutterSecureStorage(); // Initialize storage
@@ -29,14 +29,13 @@ class _PlanSelectionPageState extends State<PlanSelectionPage> {
   @override
   void initState() {
     super.initState();
-    _initAsync();
   }
 
   Future<void> _initAsync() async {
     jwt = await storage.read(key: "jwt");
     typeuser = await storage.read(key: "type");
     typeuser = json.decode(typeuser!)["type"];
-        fetchColor();
+    await fetchColor();
   }
 
   Future<void> fetchColor() async {
@@ -51,98 +50,109 @@ class _PlanSelectionPageState extends State<PlanSelectionPage> {
     deviceHeight = MediaQuery.of(context).size.height;
     deviceWidth = MediaQuery.of(context).size.width;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Featured Plans'),
-        backgroundColor: Color(0xFF1A1A1A),
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (context) => MyApp(),
-              ),
-            );
-          },
-        ),
-      ),
-      body: Center(
-        child: Padding(
-          padding: EdgeInsets.only(
-            bottom: deviceHeight * 0.4,
-            left: deviceWidth * 0.08,
-            right: deviceWidth * 0.08,
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              SizedBox(
-                height: deviceHeight * 0.03,
-              ),
-              Expanded(
-                child: ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: widget.plans.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    return Column(
-                      children: [
-                        Container(
-                          height: 80,
-                          width: double.infinity,
-                          decoration: BoxDecoration(
-                            color: currentColor ?? Color(0xFF05AADC),
-                            borderRadius: BorderRadius.circular(31.0),
-                          ),
-                          child: Center(
-                            child: Text(
-                              widget.plans[index].type,
-                              style: TextStyle(
-                                fontSize: 30,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                        ),
-                        SizedBox(
-                          height: deviceHeight * 0.02,
-                        )
-                      ],
-                    );
-                  },
-                ),
-              ),
-              SizedBox(
-                height: deviceHeight * 0.009,
-              ),
-            ],
-          ),
-        ),
-      ),
-      floatingActionButton: (typeuser != null && (typeuser == "ADMIN"))
-          ? FloatingActionButton(
-        elevation: 0.0,
-        child: Icon(Icons.edit),
-        backgroundColor: currentColor ?? Color(0xFF05AADC),
-        onPressed: () {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => EditPlansPage(
-                plans: widget.plans,
-                onUpdatePlans: (updatedPlans) {
-                  setState(() {
-                    widget.onUpdatePlans(updatedPlans);
-                  });
+    return FutureBuilder(
+      future: _initAsync(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        } else if (snapshot.connectionState == ConnectionState.done) {
+          return Scaffold(
+            appBar: AppBar(
+              title: Text('Featured Plans'),
+              backgroundColor: Color(0xFF1A1A1A),
+              leading: IconButton(
+                icon: Icon(Icons.arrow_back),
+                onPressed: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => MyApp(),
+                    ),
+                  );
                 },
               ),
             ),
+            body: Center(
+              child: Padding(
+                padding: EdgeInsets.only(
+                  bottom: deviceHeight * 0.4,
+                  left: deviceWidth * 0.08,
+                  right: deviceWidth * 0.08,
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    SizedBox(
+                      height: deviceHeight * 0.03,
+                    ),
+                    Expanded(
+                      child: ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: widget.plans.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          return Column(
+                            children: [
+                              Container(
+                                height: 80,
+                                width: double.infinity,
+                                decoration: BoxDecoration(
+                                  color: currentColor ?? Color(0xFF05AADC),
+                                  borderRadius: BorderRadius.circular(31.0),
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    widget.plans[index].type,
+                                    style: TextStyle(
+                                      fontSize: 30,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              SizedBox(
+                                height: deviceHeight * 0.02,
+                              )
+                            ],
+                          );
+                        },
+                      ),
+                    ),
+                    SizedBox(
+                      height: deviceHeight * 0.009,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            floatingActionButton: (typeuser != null && (typeuser == "ADMIN"))
+                ? FloatingActionButton(
+              elevation: 0.0,
+              child: Icon(Icons.edit),
+              backgroundColor: currentColor ?? Color(0xFF05AADC),
+              onPressed: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => EditPlansPage(
+                      plans: widget.plans,
+                      onUpdatePlans: (updatedPlans) {
+                        setState(() {
+                          widget.onUpdatePlans(updatedPlans);
+                        });
+                      },
+                    ),
+                  ),
+                );
+              },
+            )
+                : null,
           );
-        },
-      )
-          : null,
+        } else {
+          return Center(child: Text('Error loading data'));
+        }
+      },
     );
   }
 }
