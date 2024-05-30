@@ -408,7 +408,7 @@ Future<void> fetchCustomers() async {
 
               postItemsListToServer(customerItemsList);
               // TODO : and ok successfull prompt and add 1 sec delay
-              Navigator.pop(
+              Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (context) => MyApp(),
@@ -494,6 +494,13 @@ class CustomerCart extends StatelessWidget {
                   fontWeight: hasItems ? FontWeight.normal : FontWeight.bold,
                 ),
               ),
+              ElevatedButton(onPressed: (){}, child:               Text(
+                "Edit",
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  color: textColor,
+                  fontWeight: hasItems ? FontWeight.normal : FontWeight.bold,
+                ),
+              ),),
               //TODO: add screen to edit the specific data
               if (hasItems)
                 ...customer.items
