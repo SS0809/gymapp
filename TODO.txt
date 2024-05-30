@@ -1,2 +1,3 @@
 floating button on edit { user and plan } not working 
-make then async
+make then async 
+"Age","Weight","Height","Gender","ActivityLevel","DietaryPreferences","FitnessGoal"
