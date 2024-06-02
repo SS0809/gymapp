@@ -1,6 +1,3 @@
-<<<<<<< HEAD
 floating button on edit { user and plan } not working 
 make then async 
 "Age","Weight","Height","Gender","ActivityLevel","DietaryPreferences","FitnessGoal"
-=======
->>>>>>> fc01ac02b84b40cb7e45f9ff9731e8fc0846b9d4
