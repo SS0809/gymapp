@@ -12,12 +12,8 @@ const adsuser=async(req,res)=>{
         return res.status(201).json({msg:'File uploaded Sucsessfully'});
     }
     if(username){ 
-<<<<<<< HEAD
-        const datacontent=await username.save(username); //Data savin
-=======
-        const datacontent=await username.save(username);  
+        const datacontent=await username.save(username); 
         //Data saving oon the db
->>>>>>> 58e413e (drag drop ok)
     }
 
 }; 
