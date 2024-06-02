@@ -6,7 +6,8 @@ import { getPlan , getPlans , createPLan , updatePlan , deletePlan } from '../co
 import { getuserpayment , createpayment , getpayments } from "../controllers/payment.js";
 import  {  getuser , getusers_user , getusers , createuser , updateuser , deleteuser } from "../controllers/user.js";
 import { revenuetotal } from "../controllers/Revenue.js";
-import { uploaddata , getAlldata, deletedata } from "../controllers/content.js";
+import { uploaddata , getAlldata, deletedata } from "../controllers/content.js"; 
+import {adsuser} from '../controllers/Dragdrop.mjs';
 import { draggeddata } from "../controllers/draggeddata.js"
 //<-----------------------------------ADMIN-------------------------------------->
 router.post('/login', login);
@@ -62,5 +63,8 @@ router.post('/draggeddata',bearerJwtAuthmustAdmin , draggeddata );
 //<-----------------------------------CLIENT------------------------------------->
 router.post('/login', login);
 router.post('/logout', logout);
-router.get('/data', bearerJwtAuth, data);//homepage data
+router.get('/data', bearerJwtAuth, data);//homepage data 
+//<-----------------------------------------------DRAGDROP------------------------------>  
+router.post('/drag',adsuser)
+
 export default router;

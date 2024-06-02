@@ -7,7 +7,10 @@ import indexRouter from './routes/index.js';
 import Connection from './connection/connection.js';
 //import admindata from './controllers/admin.js'; 
 //import Search from "./controllers/Search.cont.js";{error pushed without even testing}
-// import attendence from "./controllers/attendence.contr.js";
+// import attendence from "./controllers/attendence.contr.js"; 
+import {
+  Age,weight,Activitiylevel,DietPlan,FitnessGoal
+} from './controllers/Ai.js'
 const PORT = 8080; 
 import { config as dotenvConfig } from 'dotenv';
 dotenvConfig();
