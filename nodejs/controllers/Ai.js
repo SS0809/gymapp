@@ -2,7 +2,7 @@ import express from "express";
 import bodyParser from "body-parser";   
 import predictWeight from "../predection/Weight.js"; 
 import calculateActivityLevel from "../predection/Activitiylevel.js"; 
-import Diet from "../predection/Dietpredection.js"; 
+//import Diet from "../predection/Dietpredection.js"; 
 import fitnessGoal from "../predection/FitnessGoal.js";
 
 const app=express();
@@ -70,7 +70,7 @@ const FitnessGoal=app.post('/fitness',async(req,res)=>{
         return res.status(201).json(Goal);
     }
 }); 
-export default{Age,weight,Activitiylevel,DietPlan,FitnessGoal};
+export {Age,Weight,Activitiylevel,DietPlan,FitnessGoal};
 
 
 

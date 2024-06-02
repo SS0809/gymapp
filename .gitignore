@@ -42,3 +42,4 @@ app.*.map.json
 pubspec.lock
 node_modules
 package-lock.json
+/AI/myenv/
